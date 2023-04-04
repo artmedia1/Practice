@@ -1,7 +1,10 @@
 
-window.onload = function() {
-    roll();
-  };
+// window.onload = function() {
+//     roll();
+//   };
+
+const button = document.querySelector(".roll");
+button.addEventListener("click", roll);
 
 function roll(){
     var player1 = Math.floor(Math.random() * 6) + 1;
@@ -36,4 +39,8 @@ function setImg(number) {
     default:
       return "";
   }
+}
+
+function handleClick(){
+  alert("I got clicked!");
 }
