@@ -10,9 +10,9 @@
 </p>
 
 <p align="center">
-  <img src="images/p1-wins.png"/>
+  <img src="images/P1-wins.png"/>
 </p>
 
 <p align="center">
-  <img src="images/p2-wins.png"/>
+  <img src="images/P2-wins.png"/>
 </p>
