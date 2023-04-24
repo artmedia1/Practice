@@ -3,13 +3,20 @@ const button = document.querySelectorAll(".drum");
 
 button.forEach(function(button) { //function(button) is an anonmynous function that adds eventlisteners but it is also the input for the forEach() function
     button.addEventListener('click', function(){
-      play(button.innerHTML)
+      play(button.innerHTML);
+      buttonAnimation(button.innerHTML);
     });
   });
 
 document.addEventListener('keydown', function(event){
   play(event.key.toLocaleLowerCase());
+  buttonAnimation(event.key.toLocaleLowerCase());
 });
+
+// document.addEventListener("keypress", function(event){ 
+//   console.log(event);
+// });
+
 
 
 function play(key){
@@ -44,4 +51,12 @@ function play(key){
       console.log("The " + key + " button/key is causing issues.");
     }
     
+}
+
+function buttonAnimation(currentKey){
+  var activeButton = document.querySelector("." + currentKey);
+  activeButton.classList.toggle("pressed");
+  setTimeout(function(){
+    activeButton.classList.toggle("pressed");
+  }, 100);
 }
