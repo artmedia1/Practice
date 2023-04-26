@@ -1,62 +1,82 @@
-var buttonColours = ["red", "blue", "green", "yellow"];
-var gamePattern = [];
-var userClickedPattern = [];
-var level = 0;
-var currentLevel = 0;
-
-function nextSequence(gamePattern){
-    userClickedPattern = []
-    level += 1;
-    $("#level-title").text("Level " + level);
-    var randomNumber = Math.floor(Math.random() * buttonColours.length);
-    var randomChosenColour  = buttonColours[randomNumber];
-    gamePattern.push(randomChosenColour);
-    animateButton(randomChosenColour);
-    playSound(randomChosenColour);
-}
-
-function playSound(colour){
-    var audio = new Audio('sounds/'+colour+".mp3");
-    audio.play(); 
-}
-
-function checkAnswer(currentLevel){
-    // alert(gamePattern[currentLevel] + "," + userClickedPattern[currentLevel]);
-    if(gamePattern[currentLevel] === userClickedPattern[currentLevel]){
-        return true;
+class Simon {
+    constructor() {
+        this.buttonColours = ["red", "blue", "green", "yellow"];
+        this.gamePattern = [];
+        this.userClickedPattern = [];
+        this.level = 0;
+        this.numClicks = 0;
     }
-    return false;
+
+    updateClickPattern(userChosenColour){
+        this.userClickedPattern.push(userChosenColour);
+    }
+
+    resetClickedPattern(){
+        this.userClickedPattern = []
+    }
+    
+    nextSequence() { //Plays the next sequence of the Simon game
+        this.level += 1;
+        this.resetClickedPattern();
+        $("#level-title").text("Level " + this.level);
+        var randomNumber = Math.floor(Math.random() * this.buttonColours.length);
+        var randomChosenColour = this.buttonColours[randomNumber];
+        this.gamePattern.push(randomChosenColour);
+        this.animateButton(randomChosenColour);
+        this.playSound(randomChosenColour);
+    }
+
+    playSound(sound) {
+        var audio = new Audio('sounds/' + sound + ".mp3");
+        audio.play();
+    }
+
+    checkAnswer() {
+        this.numClicks = this.userClickedPattern.length - 1;
+        if (this.gamePattern[this.numClicks] === this.userClickedPattern[this.numClicks]) {
+            return true;
+        }
+        return false;
+    }
+
+    animateButton(colour) {
+        $("#" + colour).fadeOut(100).fadeIn(100);
+    }
+
+    gameOver() {//plays the game over animation, resets level and gamePattern.
+        $("body").toggleClass("game-over");
+        setTimeout(function () {
+            $("body").toggleClass("game-over");
+        }, 200);
+        this.level = 0;
+        this.gamePattern = [];
+    }
 }
 
-function animateButton(colour){
-    $("#" + colour).fadeOut(100).fadeIn(100);
-}
+var simon = new Simon();
 
-$(document).on('keypress', function(){
-    nextSequence(gamePattern);
+$(document).on('keypress', function () { //Checks if level is 0 to start game on click
+    if (simon.gamePattern.length == 0) {
+        simon.nextSequence();
+    }
 });
 
-$(".btn").on("click", function() {
+$(".btn").on("click", function () {
     var userChosenColour = $(this).attr("id");
-    userClickedPattern.push(userChosenColour);
-    currentLevel = userClickedPattern.length - 1;
-    if (checkAnswer(currentLevel)){
-        animateButton(userChosenColour);
-        playSound(userChosenColour);
-        if (currentLevel === level-1){
-            setTimeout(function(){
-                nextSequence(gamePattern)
+    simon.updateClickPattern(userChosenColour);
+    if (simon.checkAnswer()) {
+        simon.animateButton(userChosenColour);
+        simon.playSound(userChosenColour);
+        if (simon.numClicks === simon.level - 1) {
+            setTimeout(function () {
+                simon.nextSequence()
             }, 1000);
         }
     }
     else {
         $("#level-title").text("Game Over, Press Any Key to Restart");
-        $("body").toggleClass("game-over");
-        setTimeout(function(){
-            $("body").toggleClass("game-over");
-        }, 200);
-        level = 0;
-        gamePattern = [];
+        simon.playSound("wrong");
+        simon.gameOver();
     }
 });
 
