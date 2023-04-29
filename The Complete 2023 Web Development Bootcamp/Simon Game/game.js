@@ -63,7 +63,7 @@ $(document).on('keypress', function () { //Checks if level is 0 to start game on
 
 $(".btn").on("click", function () {
     var userChosenColour = $(this).attr("id");
-    simon.updateClickPattern(userChosenColour);
+    simon.updateClickPattern(userChosenColour); 
     if (simon.checkAnswer()) {
         simon.animateButton(userChosenColour);
         simon.playSound(userChosenColour);
