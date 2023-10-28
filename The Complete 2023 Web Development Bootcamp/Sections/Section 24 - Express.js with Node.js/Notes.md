@@ -1,0 +1,26 @@
+- npm init (initialize node, type npm init -y to just say yes to everythin)
+- npm i express (install express) then add "type": "module", to the package.json
+- node index.js (starts server)
+- You can access the page at localhost:3000
+- To check what ports your PC is listening to:
+    - Windows: netstat -anb | findstr "LISTENING" or netstat -anb in cmd with admin to see what app is listening to what port
+    - MAC: sudo lsof -i -P -n | grep LISTEN
+- Request Vocab
+    - GET: Request a resource from a server.
+    - POST: Send a resource to the server for creation or processing.
+    - PUT: Update method, replace a resource or create it if it doesn't exist.
+    - PATCH: Update method, make partial modifications to a resource.
+    - DELETE: Remove a specified resource from the server.
+- Whenever you make a change to the files, you need to restart server
+    - Use nodemon to automatically restart when changes are made
+    - instead of running the server with node index.js, we will instead run it with:
+        -  nodemon index.js
+
+- Example of page with header is in 24.1
+
+- HTTP Return Codes Cheat Sheet
+    - 1** Hold on
+    - 2** Here you go
+    - 3** Go away
+    - 4** You Fucked Up
+    - 5** I Fucked Up

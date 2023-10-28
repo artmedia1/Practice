@@ -1,0 +1,6 @@
+- HTTP Return Codes Cheat Sheet
+    - 1** Hold on
+    - 2** Here you go
+    - 3** Go away
+    - 4** You Fucked Up
+    - 5** I Fucked Up
