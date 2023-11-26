@@ -75,9 +75,9 @@ app.post("/search", async (req, res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+// app.listen(port, () => {
+//     console.log(`Server is running on port ${port}`);
+// });
 
 async function getGeoLocation(cityName) {
     try {
@@ -167,4 +167,4 @@ async function chatGPTSuggestions(weather, temperature, city, country) { //add o
 
 }
 
-// export const handler = serverless(app);
+export const handler = serverless(app);
