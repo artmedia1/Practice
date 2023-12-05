@@ -131,7 +131,7 @@ async function getBackground(cityName) {
         var link = "";
         if (cityName) {
             var imageQuery = cityName + " cityscape";
-            console.log(imageQuery);
+            // console.log(imageQuery);
             result = await axios.get(API_UNSPLASH + "/search/photos", {          
                 params: {
                     query: imageQuery,
@@ -141,7 +141,7 @@ async function getBackground(cityName) {
                     orientation: "landscape",
                 }
             });
-            console.log(result.data.results[0].urls.raw);
+            // console.log(result.data.results[0].urls.raw);
             link = result.data.results[0].urls.raw;
         } else {
             result = await axios.get(API_UNSPLASH + "/photos/random", {
@@ -152,7 +152,7 @@ async function getBackground(cityName) {
                     orientation: "landscape"
                 }
             });
-            console.log(result);
+            // console.log(result);
             link = result.data[0].urls.raw;
         }
 
