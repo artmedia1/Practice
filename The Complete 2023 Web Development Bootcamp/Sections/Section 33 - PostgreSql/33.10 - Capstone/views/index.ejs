@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Image</title>
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+    <h1>Anime Image</h1>
+    <% if (image) { %>
+        <!-- Display the Base64 encoded image -->
+        <img src="<%= image %>" alt="<%= name %>">
+    <% } else { %>
+        <p>No image found</p>
+    <% } %>
+</body>
+</html>
