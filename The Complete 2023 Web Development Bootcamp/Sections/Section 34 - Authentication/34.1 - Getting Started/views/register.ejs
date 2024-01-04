@@ -1,0 +1,57 @@
+<%- include('partials/header') %>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<div class="container mt-5">
+  <h1>Register</h1>
+
+  <!-- Display error message -->
+  <% if (locals.message) { %>
+    <div class="alert alert-danger">
+      <%= message %>
+    </div>
+  <% } %>
+
+  <div class="row">
+    <div class="col-sm-8">
+      <div class="card">
+        <div class="card-body">
+          <!-- Makes POST request to /register route -->
+          <form action="/register" method="POST">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" class="form-control" id="email" name="username">
+              <!-- Custom alert for invalid email -->
+              <div class="invalid-feedback" style="display: none;">
+                Please enter a valid email address.
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" class="form-control" name="password">
+            </div>
+            <button type="submit" class="btn btn-dark">Register</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function() {
+    const emailInput = $('#email');
+    const emailAlert = $('.invalid-feedback');
+
+    emailInput.on('input', function() {
+      if (emailInput.val() && emailInput[0].validity.typeMismatch) {
+        emailAlert.show();
+        emailInput[0].setCustomValidity("Please enter a valid email address.");
+      } else {
+        emailAlert.hide();
+        emailInput[0].setCustomValidity("");
+      }
+    });
+  });
+</script>
+
+<%- include('partials/footer') %> <!-- Assuming you have a footer partial -->
