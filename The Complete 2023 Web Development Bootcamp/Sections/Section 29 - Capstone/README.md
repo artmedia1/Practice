@@ -22,8 +22,8 @@ To install the project, follow these steps:
 
 1. **Clone the Repository:**
    ```
-   git clone [repository URL]
-   cd [repository-name]
+   git clone https://github.com/artmedia1/Practice.git
+   cd The Complete 2023 Web Development Bootcamp/Sections/Section 29 - Capstone
    ```
 
 2. **Install Dependencies:**
