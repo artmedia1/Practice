@@ -4,6 +4,12 @@
 
 This project is a web application that leverages ChatGPT and other APIs to provide users with real-time weather data and personalized attire recommendations. It's designed to offer an interactive and user-friendly interface for getting weather updates and attire suggestions.
 
+![Screenshot of the Application](src/public/images/Screenshot.png)
+
+## Demo
+Check out the live demo here: [ClimateQuest Demo](https://climatequest.randy-huynh.com/search)
+
+
 ## Prerequisites
 
 Before installing the project, make sure you have the following installed:
