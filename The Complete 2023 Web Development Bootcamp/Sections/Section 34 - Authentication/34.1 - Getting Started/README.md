@@ -4,8 +4,8 @@
 
 This Node.js web application is a platform where users can register, log in, and share secrets anonymously. It focuses on secure user authentication and session management. The app integrates password salting and hashing with bcryptjs, session management through express-session. It employs PostgreSQL as its database system for storing user information.
 
-![Screenshot of the Application](public/Screenshot1.png)
-![Screenshot of the Application](public/Screenshot2.png)
+![Screenshot of the Application](public/screenshot1.png)
+![Screenshot of the Application](public/screenshot2.png)
 
 ## Prerequisites
 
