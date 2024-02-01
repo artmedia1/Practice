@@ -1,4 +1,4 @@
-# Secrets - A
+# Secrets Sharing App
 
 ## Description
 
@@ -48,7 +48,7 @@ To install the project, follow these steps:
 5. **Starting the Server:**
    To start the server, run:
    ```
-   node index.js
+   node app.js
    ```
 
 ## Usage
