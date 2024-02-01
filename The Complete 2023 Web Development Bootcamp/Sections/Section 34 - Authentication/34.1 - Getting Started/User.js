@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import { db, connectDB } from './dbConfig.js'; 
+import { db, connectDB, sequelize } from './dbConfig.js'; 
 import dotenv from 'dotenv';
 
 dotenv.config();

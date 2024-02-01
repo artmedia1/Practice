@@ -62,18 +62,18 @@ passport.use(new LocalStrategy({
     }
 }));
 
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID, // Use environment variables for security
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/auth/google/secrets"
-    // userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
-  },
-  async function(accessToken, refreshToken, profile, cb) {
-    User.findOrCreate({ googleId: profile.id }, function (err, user) {
-      return cb(err, user);
-    });
-  }
-));
+// passport.use(new GoogleStrategy({
+//     clientID: process.env.GOOGLE_CLIENT_ID, // Use environment variables for security
+//     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//     callbackURL: "http://localhost:3000/auth/google/secrets"
+//     // userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
+//   },
+//   async function(accessToken, refreshToken, profile, cb) {
+//     User.findOrCreate({ googleId: profile.id }, function (err, user) {
+//       return cb(err, user);
+//     });
+//   }
+// ));
 
 // Serialize the user for the session
 passport.serializeUser((user, done) => {

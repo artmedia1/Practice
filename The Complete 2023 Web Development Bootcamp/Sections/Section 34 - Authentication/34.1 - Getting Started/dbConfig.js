@@ -7,7 +7,11 @@ dotenv.config();
 const sequelize = new Sequelize(
   process.env.database,
   "postgres",
-  process.env.password
+  process.env.password,
+  {
+    host: "localhost",
+    dialect: 'postgres' // Specify the dialect
+  }
   );
 
 const db = new pg.Client({
@@ -38,4 +42,4 @@ const testDbConnection = async () => {
 };
 
 // Export the db client and the connection function
-export { db, connectDB };
+export { db, connectDB, sequelize };
