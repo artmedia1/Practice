@@ -1,11 +1,11 @@
-package com.randy.learningspringboot.game;
+package com.randy.learningspringboot.SimpleExample.app05dependencyinjection;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 @Component
 @Primary
-public class MarioGame implements GamingConsole{
+public class MarioGame implements GamingConsole {
     public String getName(){
         return("MarioGame");
     }

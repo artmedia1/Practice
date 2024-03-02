@@ -1,9 +1,11 @@
-package com.randy.learningspringboot.game;
+package com.randy.learningspringboot.SimpleExample.app05dependencyinjection;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SuperContraGame implements GamingConsole{
+@Qualifier("SuperContraGameQualifier")
+public class SuperContraGame implements GamingConsole {
     public String getName(){
         return("SuperContraGame");
     }

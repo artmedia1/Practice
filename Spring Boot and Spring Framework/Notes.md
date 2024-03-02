@@ -7,7 +7,7 @@
 - [Spring Bean](#spring-beans)
   - [Simple Spring Bean](#simple-spring-bean)
   - [Auto Created Spring Bean](#auto-created-spring-bean)
-
+  - [@Primary vs @Qualifier](#primary-vs-qualifier)
 ## Terminology
 
 ### Tightly Coupled Code
@@ -336,7 +336,7 @@ Person[name=Randy, age=15, address=Address[firstLine=231 Main St, secondLine=Qua
 Person[name=Randy, age=15, address=Address[firstLine=123 Main St, secondLine=Primary Springfield]]
 ```
 
-### Auto Created Spring Bean
+## Auto Created Spring Bean
 Previously, we had 2 separate files, a drive code file and a configuration file. We have merged them into one now and also have spring auto creating our beans.
 
 We will need to do two things
@@ -465,3 +465,39 @@ Go Down Pipe
 Move Left
 Move Right
 ```
+
+## @Primary vs @Qualifier - Which one to use?
+
+- `@Primary` is used to give a bean a higher preference when multiple beans of the same type are available in the Spring container. When you autowire a dependency without specifying any qualifiers, Spring will inject the bean marked with `@Primary`.
+
+- `@Qualifier` is used when you want to specify exactly which bean to autowire when you have more than one bean of the same type. It is useful when you want to select a specific bean to be injected among multiple candidates.
+
+- Always think from the perspective of the class that is using the `SortingAlgorithm`:
+  1. Just `@Autowired`: This tells Spring to inject the preferred `SortingAlgorithm` bean, and if there's a bean marked with `@Primary`, it will be selected.
+  2. `@Autowired` + `@Qualifier`: This is more specific and tells Spring to inject the `SortingAlgorithm` bean that matches the given qualifier.
+
+- (REMEMBER) `@Qualifier` has a higher priority than `@Primary` when both are specified.
+
+#### Code Example:
+
+```java
+@Component @Primary
+class QuickSort implements SortingAlgorithm { ... }
+
+@Component
+class BubbleSort implements SortingAlgorithm { ... }
+
+@Component @Qualifier("RadixSortQualifier")
+class RadixSort implements SortingAlgorithm { ... }
+
+@Component
+class ComplexAlgorithm {
+    @Autowired
+    private SortingAlgorithm algorithm; // This will get the bean marked with @Primary
+}
+
+@Component
+class AnotherComplexAlgorithm {
+    @Autowired @Qualifier("RadixSortQualifier")
+    private SortingAlgorithm iWantToUseRadixSortOnly; // This will specifically require RadixSort
+}

@@ -1,4 +1,4 @@
-package com.randy.learningspringboot.game;
+package com.randy.learningspringboot.app04autocreatedspringbean.game;
 
 
 public interface GamingConsole {
