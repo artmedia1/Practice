@@ -6,7 +6,7 @@
   - [Loosely Coupled Code](#loosely-coupled-code)
 - [Spring Bean](#spring-beans)
   - [Simple Spring Bean](#simple-spring-bean)
-
+  - [Auto Created Spring Bean](#auto-created-spring-bean)
 
 ## Terminology
 
@@ -138,6 +138,92 @@ This code demonstrates how to configure and use Spring beans using annotations l
 
 This setup allows for flexible and maintainable Spring bean configuration, demonstrating the power of Spring's inversion of control (IoC) container.
 
+### Classes
+```Java
+//GameRunner.java
+package com.randy.learningspringboot.game;
+
+public class GameRunner {
+    GamingConsole game;
+    public GameRunner(GamingConsole game){
+        this.game = game;
+    }
+
+    public void run() {
+        System.out.println("Running game: " + game.getName());
+        game.up();
+        game.down();
+        game.left();
+        game.right();
+    }
+}
+```
+
+```Java
+//GamingConsole.java
+package com.randy.learningspringboot.game;
+
+public interface GamingConsole {
+    String getName();
+    void up();
+    void down();
+    void left();
+    void right();
+}
+```
+
+```Java
+//MarioGame.java
+package com.randy.learningspringboot.game;
+
+public class MarioGame implements GamingConsole{
+    public String getName(){
+        return("MarioGame");
+    }
+    public void up(){
+        System.out.println("Jump");
+    }
+
+    public void down(){
+        System.out.println("Go Down Pipe");
+    }
+
+    public void left(){
+        System.out.println("Move Left");
+    }
+
+    public void right(){
+        System.out.println("Move Right");
+    }
+}
+```
+
+```Java
+//SuperContraGame.java
+package com.randy.learningspringboot.game;
+
+public class SuperContraGame implements GamingConsole{
+    public String getName(){
+        return("SuperContraGame");
+    }
+
+    public void up(){
+        System.out.println("Jump");
+    }
+
+    public void down(){
+        System.out.println("Crouch");
+    }
+
+    public void left(){
+        System.out.println("Move Left");
+    }
+
+    public void right(){
+        System.out.println("Move Right");
+    }
+}
+```
 ### Configuration
 ```Java
 package com.randy.learningspringboot.app02springbeansbeginner;
@@ -248,4 +334,134 @@ Person[name=Randy, age=15, address=Address[firstLine=123 Main St, secondLine=Pri
 Person[name=Randy, age=15, address=Address[firstLine=123 Main St, secondLine=Primary Springfield]]
 Person[name=Randy, age=15, address=Address[firstLine=231 Main St, secondLine=Qualifier Springfield]]
 Person[name=Randy, age=15, address=Address[firstLine=123 Main St, secondLine=Primary Springfield]]
+```
+
+### Auto Created Spring Bean
+Previously, we had 2 separate files, a drive code file and a configuration file. We have merged them into one now and also have spring auto creating our beans.
+
+We will need to do two things
+
+1. Add @Component to the component files
+2. Add @ComponentScan to our Driver coder
+
+### Classes
+```Java
+//GameRunner.java
+package com.randy.learningspringboot.game;
+
+@Component
+public class GameRunner {
+    GamingConsole game;
+    public GameRunner(GamingConsole game){
+        this.game = game;
+    }
+
+    public void run() {
+        System.out.println("Running game: " + game.getName());
+        game.up();
+        game.down();
+        game.left();
+        game.right();
+    }
+}
+```
+
+```Java
+//GamingConsole.java
+package com.randy.learningspringboot.game;
+
+public interface GamingConsole {
+    String getName();
+    void up();
+    void down();
+    void left();
+    void right();
+}
+```
+
+```Java
+//MarioGame.java
+package com.randy.learningspringboot.game;
+
+@Component
+@Primary
+public class MarioGame implements GamingConsole{
+    public String getName(){
+        return("MarioGame");
+    }
+    public void up(){
+        System.out.println("Jump");
+    }
+
+    public void down(){
+        System.out.println("Go Down Pipe");
+    }
+
+    public void left(){
+        System.out.println("Move Left");
+    }
+
+    public void right(){
+        System.out.println("Move Right");
+    }
+}
+```
+
+```Java
+//SuperContraGame.java
+package com.randy.learningspringboot.game;
+
+@Component
+public class SuperContraGame implements GamingConsole{
+    public String getName(){
+        return("SuperContraGame");
+    }
+
+    public void up(){
+        System.out.println("Jump");
+    }
+
+    public void down(){
+        System.out.println("Crouch");
+    }
+
+    public void left(){
+        System.out.println("Move Left");
+    }
+
+    public void right(){
+        System.out.println("Move Right");
+    }
+}
+```
+
+### Driver Code
+```Java
+package com.randy.learningspringboot.game;
+
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@ComponentScan("com.randy.learningspringboot.game")
+public class AppGamingSpringBean {
+
+    public static void main(String[] args) {
+        try (var context = new AnnotationConfigApplicationContext(AppGamingSpringBean.class);) {
+            context.getBean(GamingConsole.class).up();
+            context.getBean(GameRunner.class).run();
+        }
+    }
+}
+```
+
+## Output
+```Jump
+Running game: MarioGame
+Jump
+Go Down Pipe
+Move Left
+Move Right
 ```
