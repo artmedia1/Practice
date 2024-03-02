@@ -1,5 +1,8 @@
 package com.randy.learningspringboot.game;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class SuperContraGame implements GamingConsole{
     public String getName(){
         return("SuperContraGame");

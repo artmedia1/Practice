@@ -1,5 +1,6 @@
 package com.randy.learningspringboot.game;
 
+
 public interface GamingConsole {
     String getName();
     void up();

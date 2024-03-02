@@ -1,5 +1,10 @@
 package com.randy.learningspringboot.game;
 
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
+
+@Component
+@Primary
 public class MarioGame implements GamingConsole{
     public String getName(){
         return("MarioGame");
