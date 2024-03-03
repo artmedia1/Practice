@@ -5,11 +5,20 @@
   - [Tightly Coupled Code](#tightly-coupled-code)
   - [Loosely Coupled Code](#loosely-coupled-code)
 - [Spring Bean](#spring-beans)
+  - [Understanding Dependencies in Spring](#understanding-dependencies-in-spring)
+  - [When to Use `@Autowired`](#using-autowired-in-spring)
   - [Simple Spring Bean](#simple-spring-bean)
   - [Auto Created Spring Bean](#auto-created-spring-bean)
   - [@Primary vs @Qualifier](#primary-vs-qualifier---which-one-to-use)
   - [@Component vs @Bean](#component-vs-bean)
   - [Lazy vs Eager Initialization](#comparing-lazy-initialization-vs-eager-initialization)
+  - [Bean Scopes - Prototype and Singleton](#bean-scopes---prototype-and-singleton)
+  - [Spring Boot PreConstruct and PostDestroy Annotations](#spring-boot-preconstruct-and-postdestroy-annotations)
+  - [Evolution of Jakarta EE: vs J2EE vs Java EE](#evolution-of-jakarta-ee-vs-j2ee-vs-java-ee)
+  - [Jakarta Contexts & Dependency Injection (CDI)](#jakarta-contexts--dependency-injection-cdi)
+
+
+
 
 ## Terminology
 
@@ -71,7 +80,7 @@ This design does not support multiple storage options (e.g., both hard drive and
 
 
 
-### Loosely Coupled Code
+## Loosely Coupled Code
 - **Definition**: Loosely coupled code refers to a scenario where components (classes, modules, functions) have fewer dependencies on each other.
 - **Characteristics**:
   - Changes in one component require fewer changes to others.
@@ -123,7 +132,103 @@ Spring Framework manages the lifecycle of objects, what you will need to do is:
 ![BusinessCalculationService](image.png)
     Check example2 in app05dependencyinjection
 
-### Simple Spring Bean
+## Understanding Dependencies in Spring
+
+In Spring, a dependency is an object that another bean requires for its operations. For example, if we have a `Car` class that requires an `Engine` and `Wheels` to function, `Engine` and `Wheels` are dependencies of `Car`.
+
+Here's the example:
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
+public class Car {
+
+    // The Car class depends on the Engine and Wheels classes to function properly
+    private Engine engine;
+    private Wheels wheels;
+
+    // Spring injects an instance of Engine here, making Engine a dependency of Car
+    @Autowired
+    public Car(Engine engine) {
+        this.engine = engine;
+    }
+
+    // Spring also injects an instance of Wheels here, making Wheels another dependency of Car
+    @Autowired
+    public void setWheels(Wheels wheels) {
+        this.wheels = wheels;
+    }
+}
+
+@Component
+class Engine {
+    // Engine details - other classes may depend on Engine
+}
+
+@Component
+class Wheels {
+    // Wheels details - other classes may depend on Wheels
+}
+```
+
+Key Points on Dependencies:
+
+- Wiring: Dependencies are "wired" into a class where they're needed. In the example, Car needs Engine and Wheels to operate. Spring 'wires' these dependencies using the @Autowired annotation.
+- Inversion of Control (IoC): Instead of the Car class creating its own Engine and Wheels, which would tightly couple the classes, Spring takes the responsibility of creating and providing these dependencies. This is called Inversion of Control.
+- Loose Coupling: Dependency Injection helps in achieving loose coupling between classes. The Car class doesn't need to know the details of the creation or management of Engine or Wheels.
+- Interchangeability: If you wanted to use a different type of Engine or Wheels, you could simply provide Spring with a different bean configuration, and the Car class would remain unchanged.
+
+Dependencies are thus crucial for creating modular, testable, and maintainable applications.
+
+
+## Using `@Autowired` in Spring
+
+The `@Autowired` annotation in Spring is used for automatic dependency injection. Spring provides the matching bean from its context and injects it into the marked field.
+
+Here's a simple example:
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
+public class Car {
+
+    private Engine engine;
+    private Wheels wheels;
+
+    // Using @Autowired on a constructor
+    @Autowired
+    public Car(Engine engine) {
+        this.engine = engine;
+    }
+
+    // Using @Autowired on a setter method
+    @Autowired
+    public void setEngine(Engine engine) {
+        this.engine = engine;
+    }
+}
+
+@Component
+class Engine {
+    // Engine details
+}
+
+@Component
+class Wheels {
+    // Wheels details
+}
+```
+
+## When to Use @Autowired
+- Constructor Injection: When you want to inject dependencies via the constructor, ensuring that required dependencies are not null and promoting immutability.
+- Setter Injection: When you need to inject dependencies via setter methods, which allows for reconfiguration or re-injection of dependencies later.
+- Field Injection: Although not recommended due to several drawbacks (like difficulty in unit testing, not being able to mark the field as final, etc.), it can be used for quick and less verbose configuration when starting out or in simple applications.
+
+## Simple Spring Bean
 
 This code demonstrates how to configure and use Spring beans using annotations like `@Bean`, `@Primary`, and `@Qualifier` within a Spring application.
 
@@ -624,3 +729,185 @@ public class LazyInitializationLauncherApplication {
 | **Memory Consumption** | Less (until bean is initialized)              | All beans are initialized at startup           |
 | **Recommended Scenario**| Beans very rarely used in your app            | Most of your beans                             |
 
+## Bean Scopes - Prototype and Singleton
+Spring Beans are defined to be used in a specific scope:
+
+- **Singleton**: One object instance per Spring IoC container
+- **Prototype**: Possibly many object instances per Spring IoC container
+
+Scopes applicable ONLY for web-aware Spring `ApplicationContext`:
+
+- **Request**: One object instance per single HTTP request
+- **Session**: One object instance per user HTTP Session
+- **Application**: One object instance per web application runtime
+- **Websocket**: One object instance per WebSocket instance
+
+## Java Singleton (Gang Of Four) vs Spring Singleton
+
+- **Spring Singleton**: One object instance per Spring IoC container
+- **Java Singleton (GOF)**: One object instance per JVM
+
+
+
+
+| Heading        | Prototype                         | Singleton                                        |
+|----------------|-----------------------------------|--------------------------------------------------|
+| Instances      | Possibly Many per Spring IOC Container | One per Spring IOC Container                 |
+| Beans          | New bean instance created every time the bean is referred to | Same bean instance reused |
+| Default        | NOT Default                       | Default                                          |
+| Code Snippet   | `@Scope(value=ConfigurableBeanFactory.SCOPE_PROTOTYPE)` | `@Scope(value=ConfigurableBeanFactory.SCOPE_SINGLETON)` OR Default |
+| Usage          | Rarely used                       | Very frequently used                             |
+| Recommended Scenario | Stateful beans                | Stateless beans                                  |
+
+
+When we run the code velow without prototype, we can see that we get the same class hashcodes. That is because by default, all beans created by Spring Framework are singletons. Classes with prototype class scope will get a new instance.
+
+### Classes
+```Java
+package com.randy.learningspringboot.app07BeanScopes;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class NormalClass {
+}
+```
+
+```Java
+package com.randy.learningspringboot.app07BeanScopes;
+
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+@Scope(value= ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@Component
+public class PrototypeClass {
+}
+```
+```Java
+package com.randy.learningspringboot.app07BeanScopes;
+
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.Arrays;
+
+@Configuration
+@ComponentScan
+public class BeanScopesApplicationLauncher {
+
+    public static void main(String[] args) {
+        try (var context = new AnnotationConfigApplicationContext(BeanScopesApplicationLauncher.class);) {
+            System.out.println(context.getBean(NormalClass.class));
+            System.out.println(context.getBean(NormalClass.class));
+            System.out.println(context.getBean(PrototypeClass.class));
+            System.out.println(context.getBean(PrototypeClass.class));
+            System.out.println(context.getBean(PrototypeClass.class));
+        }
+    }
+}
+```
+### Output
+    com.randy.learningspringboot.app07BeanScopes.NormalClass@3e84448c
+    com.randy.learningspringboot.app07BeanScopes.NormalClass@3e84448c
+    com.randy.learningspringboot.app07BeanScopes.PrototypeClass@4a7f959b
+    com.randy.learningspringboot.app07BeanScopes.PrototypeClass@429bffaa
+    com.randy.learningspringboot.app07BeanScopes.PrototypeClass@5403f35f
+
+## Spring Boot PreConstruct and PostDestroy Annotations
+
+This example demonstrates the use of `@PostConstruct` and `@PreDestroy` annotations in a Spring Boot application. These annotations are used for defining methods that should be executed after bean initialization and just before bean destruction, respectively.
+
+### Overview
+
+- The `PrePostAnnotatioLauncherApp` class bootstraps the Spring application context using `AnnotationConfigApplicationContext`. It scans for Spring components to create and manage beans within the application.
+- `SomeClass` is a Spring-managed component that depends on `SomeDependency`.
+- Upon bean construction, `SomeClass` prints a message indicating all dependencies are ready.
+- The `@PostConstruct` annotated method `initialize` is called after the bean of `SomeClass` is created and all its dependencies are injected. It's used to perform any initialization logic, like preparing resources.
+- The `@PreDestroy` annotated method `cleanup` is executed before the bean is destroyed, which is typically when the application context is closed. This method is used for cleanup activities, such as releasing resources or closing connections with databases.
+
+## Code Snippets
+
+### Application Launcher
+```java
+@Configuration
+@ComponentScan
+public class PrePostAnnotatioLauncherApp {
+    public static void main(String[] args) {
+        try (var context = new AnnotationConfigApplicationContext(PrePostAnnotatioLauncherApp.class);) {
+            // Application context is closed automatically here, triggering @PreDestroy
+        }
+    }
+}
+```
+### Component with Lifecycle Methods
+```java
+@Component
+public class SomeClass {
+    private SomeDependency someDependency;
+
+    public SomeClass(SomeDependency someDependency){
+        this.someDependency = someDependency;
+        System.out.println("All Dependencies are ready");
+    }
+
+    @PostConstruct
+    public void initialize(){
+        someDependency.getReady();
+    }
+
+    @PreDestroy
+    public void cleanup(){
+        System.out.println("Clean up");
+    }
+}
+```
+### Dependency Component
+```java
+@Component
+public class SomeDependency {
+    public void getReady(){
+        System.out.println("Some logic using SomeDependency");
+    }
+}
+```
+## Output
+    All Dependencies are ready
+    Some logic using SomeDependency
+    Clean up
+
+The @PostConstruct annotation is useful for any logic that needs to run after the object is fully initialized and all its dependencies are set. The @PreDestroy annotation is useful to release resources that the bean might be holding before the bean is destroyed.
+
+## Evolution of Jakarta EE: vs J2EE vs Java EE
+
+- Enterprise capabilities were initially built into JDK.
+- With time, they were separated out:
+  - **J2EE** - Java 2 Platform Enterprise Edition
+  - **Java EE** - Java Platform Enterprise Edition (Rebranding)
+  - **Jakarta EE** (Oracle gave Java EE rights to the Eclipse Foundation)
+    - Important Specifications:
+      - Jakarta Server Pages (JSP)
+      - Jakarta Standard Tag Library (JSTL)
+      - Jakarta Enterprise Beans (EJB)
+      - Jakarta RESTful Web Services (JAX-RS)
+      - Jakarta Bean Validation
+      - Jakarta Contexts and Dependency Injection (CDI)
+      - Jakarta Persistence (JPA)
+    - Supported by Spring 6 and Spring Boot 3
+      - That's why we use `jakarta.*` packages (instead of `javax.*`).
+
+## Jakarta Contexts & Dependency Injection (CDI)
+
+- Spring Framework V1 was released in 2004.
+- CDI specification introduced into Java EE 6 platform in December 2009.
+- Now called Jakarta Contexts and Dependency Injection (CDI).
+- CDI is a specification (interface).
+  - Spring Framework implements CDI.
+- Important Inject API Annotations:
+  - `@Inject` (~Autowired in Spring)
+  - Named (~Component in Spring)
+  - Qualifier
+  - Scope
+  - Singleton
