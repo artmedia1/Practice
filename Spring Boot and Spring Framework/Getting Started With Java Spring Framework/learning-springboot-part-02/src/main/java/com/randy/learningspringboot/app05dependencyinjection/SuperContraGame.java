@@ -1,20 +1,21 @@
-package com.randy.learningspringboot.SimpleExample.app05dependencyinjection;
+package com.randy.learningspringboot.app05dependencyinjection;
 
-import org.springframework.context.annotation.Primary;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
-@Primary
-public class MarioGame implements GamingConsole {
+@Qualifier("SuperContraGameQualifier")
+public class SuperContraGame implements GamingConsole {
     public String getName(){
-        return("MarioGame");
+        return("SuperContraGame");
     }
+
     public void up(){
         System.out.println("Jump");
     }
 
     public void down(){
-        System.out.println("Go Down Pipe");
+        System.out.println("Crouch");
     }
 
     public void left(){

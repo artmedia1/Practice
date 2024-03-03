@@ -1,4 +1,4 @@
-package com.randy.learningspringboot.SimpleExample.app05dependencyinjection;
+package com.randy.learningspringboot.app05dependencyinjection;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;

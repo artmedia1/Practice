@@ -7,7 +7,10 @@
 - [Spring Bean](#spring-beans)
   - [Simple Spring Bean](#simple-spring-bean)
   - [Auto Created Spring Bean](#auto-created-spring-bean)
-  - [@Primary vs @Qualifier](#primary-vs-qualifier)
+  - [@Primary vs @Qualifier](#primary-vs-qualifier---which-one-to-use)
+  - [@Component vs @Bean](#component-vs-bean)
+  - [Lazy vs Eager Initialization](#comparing-lazy-initialization-vs-eager-initialization)
+
 ## Terminology
 
 ### Tightly Coupled Code
@@ -111,6 +114,14 @@ computer_with_cloud_storage.save_data("Some important data")
 This approach makes the Computer class loosely coupled with the storage mechanism. It uses a StorageInterface to interact with any storage type that implements this interface, allowing for flexibility and easier maintenance. Changes to storage mechanisms or adding new ones do not require changes to the Computer class, as long as they implement the StorageInterface. This design supports multiple storage options without complicating the Computer class.
 
 ## Spring Beans
+
+Spring Framework manages the lifecycle of objects, what you will need to do is:
+ - Mark components using annotations: @Component (and others...)
+ - Mark dependencies using @Autowired
+ - Allow Spring Framework to do it's magic!
+### Example - BusinessCalculationService
+![BusinessCalculationService](image.png)
+    Check example2 in app05dependencyinjection
 
 ### Simple Spring Bean
 
@@ -466,7 +477,7 @@ Move Left
 Move Right
 ```
 
-## @Primary vs @Qualifier - Which one to use?
+## @primary vs @qualifier - Which one to use?
 
 - `@Primary` is used to give a bean a higher preference when multiple beans of the same type are available in the Spring container. When you autowire a dependency without specifying any qualifiers, Spring will inject the bean marked with `@Primary`.
 
@@ -501,3 +512,115 @@ class AnotherComplexAlgorithm {
     @Autowired @Qualifier("RadixSortQualifier")
     private SortingAlgorithm iWantToUseRadixSortOnly; // This will specifically require RadixSort
 }
+```
+
+## @Component vs @Bean
+
+| Heading | @Component | @Bean |
+|-----|-----|-----|
+| Where?| Can be used on any Java class| Typically used on methods in Spring Configuration classes|
+| Ease of use| Very easy. Just add an annotation.| You write all the code.|
+| Autowiring| Yes - Field, Setter or Constructor Injection| Yes - method call or method parameters|
+| Who creates beans?| Spring Framework| You write bean creation code|
+| Recommended For| Instantiating Beans for Your Own Application Code: @Component | 1: Custom Business Logic 2: Instantiating Beans for 3rd-party libraries: @Bean |
+
+    Custom Business Logic: When you write your own classes that contain business logic specific to your application, you typically use @Component. This annotation lets Spring know to automatically detect and instantiate your class as a bean through classpath scanning.
+
+    Third-party Libraries: For classes that are not part of your application's codebase, such as those from third-party libraries, you cannot add annotations directly to the classes. Instead, you configure these beans using @Bean annotation within a configuration class, where you define the method to instantiate and configure these external class instances.
+
+### Example
+```Java
+@Configuration
+public class AppConfig {
+
+// Example of @Bean used to instantiate a third-party library class
+@Bean
+public ThirdPartyClass thirdPartyClass() {
+    return new ThirdPartyClass();
+}
+}
+
+// Your own business logic class annotated with @Component
+@Component
+public class MyBusinessService {
+// Spring will manage this bean and inject dependencies where needed
+}
+```
+    In this example, AppConfig is a configuration class that defines how to instantiate ThirdPartyClass which is from an external library, while MyBusinessService is a component of your application that Spring will discover and manage.
+
+## Lazy Intialization
+
+When the below code is run but Driver code, initialization of the bean is automatically performed (Eager Initializtion by default). If we don't want that we need to add @Lazy.
+
+### Class
+```Java
+package com.randy.learningspringboot.app05LazyInitialization;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class ClassB {
+    ClassA classA;
+
+    public ClassB(ClassA classA){
+        //logic
+        System.out.println("Some Initialization logic");
+        this.classA = classA;
+    }
+}```
+
+### Driver
+```Java
+package com.randy.learningspringboot.app05LazyInitialization;
+
+import com.randy.learningspringboot.app05dependencyinjection.example1.YourBusinessClass;
+import com.randy.learningspringboot.app05dependencyinjection.example2.BusinessCalculationService;
+import com.randy.learningspringboot.app05dependencyinjection.example2.RealWorldSpringContextLauncherApplication;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.Arrays;
+
+@Configuration
+@ComponentScan
+public class LazyInitializationLauncherApplication {
+    public static void main(String[] args) {
+        try (var context = new AnnotationConfigApplicationContext(LazyInitializationLauncherApplication.class);) {
+        }
+    }
+}
+```
+### Output Before @Lazy
+
+    Some Initialization logic
+
+### Output After @Lazy
+
+    //None - This is just a note
+
+The bean is only intializaed when ClassB is referenced like below
+```Java
+@Configuration
+@ComponentScan
+public class LazyInitializationLauncherApplication {
+    public static void main(String[] args) {
+        try (var context = new AnnotationConfigApplicationContext(LazyInitializationLauncherApplication.class);) {
+            context.getBean(ClassB.class);
+        }
+    }
+}
+```
+
+## Comparing Lazy Initialization vs Eager Initialization
+
+| Heading                | Lazy Initialization                           | Eager Initialization                           |
+|------------------------|-----------------------------------------------|------------------------------------------------|
+| **Initialization time**| Bean initialized when it is first made use of in the application | Bean initialized at startup of the application |
+| **Default**            | NOT Default                                   | Default                                        |
+| **Code Snippet**       | `@Lazy` OR `@Lazy(value=true)`                | `@Lazy(value=false)` OR (Absence of `@Lazy`)   |
+| **What happens if there are errors in initializing?** | Errors will result in runtime exceptions | Errors will prevent application from starting up |
+| **Usage**              | Rarely used                                   | Very frequently used                           |
+| **Memory Consumption** | Less (until bean is initialized)              | All beans are initialized at startup           |
+| **Recommended Scenario**| Beans very rarely used in your app            | Most of your beans                             |
+
