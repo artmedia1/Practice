@@ -11,5 +11,9 @@
     <bean id="age" class="java.lang.Integer">
         <constructor-arg value="28"/>
     </bean>
-    <context:component-scan base-package="com.randy.learningspringboot.app04autocreatedspringbean.game"/>
+    <!--    <context:component-scan base-package="com.randy.learningspringboot.app04autocreatedspringbean.game"/>-->
+    <bean id="game" class="com.randy.learningspringboot.app04autocreatedspringbean.game.MarioGame"/>
+    <bean id="GameRunner" class="com.randy.learningspringboot.app04autocreatedspringbean.game.GameRunner">
+        <constructor-arg ref="game"/> <!--Injecting values as a constructor argument into GameRunner-->
+    </bean>
 </beans>

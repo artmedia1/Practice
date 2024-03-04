@@ -1,5 +1,6 @@
 package com.randy.learningspringboot.app10XmlConfiguration;
 
+import com.randy.learningspringboot.app04autocreatedspringbean.game.GameRunner;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +16,8 @@ public class XmlConfigurationApp {
             Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
             System.out.println(context.getBean("name"));
             System.out.println(context.getBean("age"));
-
+            System.out.println(context.getBean("GameRunner"));
+            context.getBean(GameRunner.class).run();
         }
     }
 }
