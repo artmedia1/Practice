@@ -40,6 +40,12 @@
     - [Hardcoded Spring JDBC Insertion Example](#hardcoded-spring-jdbc-entry)
     - [Dynamic JDBC Queries](#dynamic-jdbc-queries)
     - [JPA Integration in Spring Boot](#jpa-integration-in-spring-boot)
+    - [Spring Data JPA](#spring-data-jpa-integration)
+    - [Hibernate vs JPA](#hibernate-vs-jpa)
+    - [Hibernate](#hibernate)
+    - [More Hibernate Code Examples](#more-hibernate-code-examples)
+- [Building Your First Web Application Notes](#building-your-first-web-application)
+
 
 
 ## Terminology
@@ -1471,6 +1477,25 @@ The evolution from using JDBC to Spring Data JPA reflects a journey towards simp
     }
     ```
 
+### JPA
+
+- **Not Verbose**: Eliminates the need for SQL for CRUD operations by using EntityManager.
+    - JPA Java Code:
+        ```java
+        public void deleteById(long id){
+            Course course = entityManager.find(Course.class, id);
+            entityManager.remove(course);
+        }
+        ```
+
+### Spring Data JPA
+- **Most Simplified**: Further abstracts data layer complexity by using Spring Data repositories.
+    - No explicit Java code needed for simple CRUD operations.
+    - Spring Data JPA Code:
+        ```java
+        repository.deleteById(1L); // 'L' denotes the long data type
+        ```
+
 Using Spring JDBC reduces boilerplate code, as it provides a template that takes care of common tasks like creating and closing connections, handling exceptions, and managing transactions.
 
 ### Advantages of Using Spring JDBC Over Plain JDBC
@@ -1798,3 +1823,438 @@ If you wish to see what queries are being run by JPA and Hibernate, include this
 spring.jpa.show-sql=true
 ```
 
+## Spring Data JPA Integration
+
+Spring Data JPA is designed to reduce the amount of boilerplate code required for data access operations in your application. By extending JpaRepository, you gain access to a wide array of common CRUD methods without the need for implementation. This enables you to perform operations such as save, delete, and find with minimal effort.
+
+### Application Class Code
+```java
+package com.randy.springboot.learnjpaandhibernate;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class LearnJpaAndHibernateApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(LearnJpaAndHibernateApplication.class, args);
+    }
+}
+```
+
+
+### Spring Data JPA Repository Code
+
+
+```java
+package com.randy.springboot.learnjpaandhibernate.course.springdatajpa;
+
+import com.randy.springboot.learnjpaandhibernate.course.Course;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+// By extending JpaRepository, you get a lot of boilerplate CRUD operations pre-implemented.
+// JpaRepository<T, ID>
+// T is the type of the entity class that you are creating the repository for. This is the domain type the repository manages and typically is an entity represented by a table in your database.
+// ID represents the type of the primary key of the entity that the repository manages. This is used to identify instances of T.
+// You can make custom queries by using the following naming convention: findBy<Column>
+public interface CourseSpringDataJpaRepository extends JpaRepository<Course, Long> {
+    List<Course> findByAuthor(String author);
+    List<Course> findByName(String Name);
+}
+```
+
+
+### Command Line Runner Code
+
+```java
+package com.randy.springboot.learnjpaandhibernate.course.springdatajpa;
+
+import com.randy.springboot.learnjpaandhibernate.course.Course;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+@Component
+public class CourseSpringJpaCommandLineRunner implements CommandLineRunner {
+    @Autowired
+    private CourseSpringDataJpaRepository repository;
+
+    @Override
+    public void run(String... args) throws Exception {
+        // Using the built-in save method to create or update courses
+        repository.save(new Course(1, "Learn JPA", "Randy Huynh"));
+        repository.save(new Course(2, "Learn JPA 2", "Randy Huynh"));
+        repository.save(new Course(3, "Learn JPA 3", "Randy Huynh"));
+        
+        // Using the built-in deleteById method to remove a course
+        repository.deleteById(1L); // 'L' is for long data type
+        
+        // Using the built-in findById method to fetch a course
+        System.out.println(repository.findById(3L)); // Optional wrapping the Course
+        System.out.println(repository.findAll());
+        System.out.println(repository.count());
+        System.out.println(repository.findByAuthor("Test"));
+    }
+}
+```
+
+By leveraging Spring Data JPA's repositories, you can focus more on the business logic and less on the data access code, promoting cleaner and more maintainable code within your Spring Boot application.
+
+## Hibernate vs JPA
+
+### JPA Specification
+
+- JPA (Java Persistence API) provides a specification for:
+    - Defining entities using the @Entity annotation.
+    - Mapping attributes with annotations like @Column, @Id, @GeneratedValue, etc.
+    - Managing entities through the EntityManager interface.
+
+```java
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Column;
+
+@Entity
+public class SomeEntity {
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @Column(name = "name")
+    private String name;
+
+    // getters and setters
+}
+```
+
+
+#### Hibernate as a JPA Implementation
+- **Hibernate** is an ORM framework that implements JPA:
+  - It provides additional features like caching and batch processing.
+  - Hibernate `Session` is the equivalent of JPA's `EntityManager`.
+
+```java
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+Session session = sessionFactory.openSession();
+Transaction tx = session.beginTransaction();
+
+SomeEntity entity = new SomeEntity();
+entity.setName("Some Name");
+session.save(entity);
+
+tx.commit();
+session.close();
+```
+
+
+#### Avoiding Direct Hibernate Dependency
+- **Direct usage of Hibernate** ties your application to Hibernate-specific APIs:
+  - This can limit your flexibility to switch ORM providers.
+  - You can use JPA's `EntityManager` to stay vendor-independent.
+
+```java
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
+public class SomeDao {
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public void saveEntity(SomeEntity entity) {
+        entityManager.persist(entity);
+    }
+}
+```
+
+
+- Other JPA implementations, like **EclipseLink** (formerly known as Toplink), offer similar functionality with slight variations.
+
+
+```java
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Persistence;
+
+EntityManager entityManager = Persistence.createEntityManagerFactory("your-unit").createEntityManager();
+
+entityManager.getTransaction().begin();
+
+SomeEntity entity = new SomeEntity();
+entity.setName("Another Name");
+entityManager.persist(entity);
+
+entityManager.getTransaction().commit();
+entityManager.close();
+```
+
+## Hibernate Setup
+
+### Hibernate cfg
+```xml
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+  ~ Hibernate, Relational Persistence for Idiomatic Java
+  ~
+  ~ License: GNU Lesser General Public License (LGPL), version 2.1 or later.
+  ~ See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
+  -->
+<!DOCTYPE hibernate-configuration PUBLIC
+	   "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+	   "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+
+	   <!-- Database connection settings -->
+	   <property name="connection.driver_class">org.h2.Driver</property>
+	   <property name="connection.url">jdbc:h2:~/database;AUTO_SERVER=TRUE</property>
+	   <property name="connection.username">sa</property>
+	   <property name="connection.password"></property>
+
+	   <!-- SQL dialect -->
+	   <property name="dialect">org.hibernate.dialect.H2Dialect</property>
+
+	   <!-- Echo all executed SQL to stdout -->
+	   <property name="show_sql">true</property>
+
+	   <!-- Names the annotated entity class -->
+	   <mapping class="org.example.User"/>
+
+    </session-factory>
+
+</hibernate-configuration>
+```
+
+### Schema
+```sql
+create table users (
+				   id identity primary key,
+				   name varchar(255),
+				   birth_date date
+);
+
+insert into users (name, birth_date) values ('marco', '1950-01-01');
+insert into users (name, birth_date) values ('ocram', '1960-01-01');
+```
+
+### User Class
+```java
+package org.example;
+
+import jakarta.persistence.*;
+
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "USERS")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+
+    public User() {
+    }
+
+
+    public User(String name, LocalDate birthDate) {
+	   this.name = name;
+	   this.birthDate = birthDate;
+    }
+
+    public Long getId() {
+	   return id;
+    }
+
+    public void setId(Long id) {
+	   this.id = id;
+    }
+
+    public String getName() {
+	   return name;
+    }
+
+    public void setName(String name) {
+	   this.name = name;
+    }
+
+    public LocalDate getBirthDate() {
+	   return birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+	   this.birthDate = birthDate;
+    }
+
+    @Override
+    public String toString() {
+	   return "User{" +
+			 "id=" + id +
+			 ", name='" + name + '\'' +
+			 ", birthDate=" + birthDate +
+			 '}';
+    }
+}
+```
+
+### Hibernate
+```java
+package org.example;
+
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Unit test for simple App.
+ */
+public class HibernateFullTest {
+
+    private SessionFactory sessionFactory;
+
+    @BeforeEach
+    protected void setUp() throws Exception {
+	   // A SessionFactory is set up once for an application!
+	   final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
+			 .configure() // configures settings from hibernate.cfg.xml
+			 .build();
+	   try {
+		  sessionFactory = new MetadataSources( registry ).buildMetadata().buildSessionFactory();
+	   }
+	   catch (Exception e) {
+		  // The registry would be destroyed by the SessionFactory, but we had trouble building the SessionFactory
+		  // so destroy it manually.
+		  StandardServiceRegistryBuilder.destroy( registry );
+	   }
+    }
+
+    @AfterEach
+    protected void tearDown() throws Exception {
+	   if ( sessionFactory != null ) {
+		  sessionFactory.close();
+	   }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testBasicUsage() {
+	   // create a couple of events...
+	   Session session = sessionFactory.openSession();
+	   session.beginTransaction();
+	   session.remove(new User("Marco's Friend", LocalDate.now()));
+	   session.getTransaction().commit();
+	   session.close();
+
+	   session = sessionFactory.openSession();
+	   session.beginTransaction();
+	   List<User> result = session.createQuery( "select u from User u" , User.class).list();
+	   for ( User user : result) {
+		  System.out.println( "User (" + user.getName() + ") : " + user.getBirthDate() );
+	   }
+	   session.getTransaction().commit();
+	   session.close();
+    }
+
+    @Test
+    public void marco_is_in_the_house() {
+	   assertThat(1).isGreaterThanOrEqualTo(0);
+    }
+}
+```
+
+### More Hibernate Code Examples
+
+```java
+@Test
+void save_my_first_object_to_the_db() {
+    // Create a new instance of the User entity
+    User user = new User("Lisa", LocalDate.now());
+
+    // Open a new session from the session factory
+    try (Session session = sessionFactory.openSession()) {
+        // Begin a new transaction
+        session.beginTransaction();
+
+        // Save the user entity to the database
+        session.persist(user);
+
+        // Commit the transaction to finalize the insert operation
+        session.getTransaction().commit();
+    }
+    // The session is automatically closed at the end of the try-with-resources block
+}
+```
+
+
+```java
+@Test
+ void hql_fetch_users() {
+        // Opening a session from the sessionFactory
+        try (Session session = sessionFactory.openSession()) {
+            // Starting a transaction for the current session
+            session.beginTransaction();
+
+            // Executing a Hibernate Query Language (HQL) query to fetch all User entities
+            // The query is specified in a type-safe manner to return instances of User
+            List<User> users = session.createQuery("from User u", User.class).list();
+
+            // Iterating over the result list and printing each User object
+            // Uses method reference for concise syntax
+            users.forEach(System.out::println);
+
+            // The transaction is not being committed or rolled back because we're only reading data
+            // but it's a good practice to commit or rollback even read-only transactions
+        }
+        // Session is auto-closed due to try-with-resources, which ensures proper resource management
+    }
+```
+
+### Building Your First Web Application
+
+Building a web application involves understanding and integrating a variety of concepts and tools:
+
+- **Web Application Fundamentals**
+  - Browser interactions using HTML and CSS
+  - Handling HTTP requests and responses
+  - Managing user sessions and authentication
+
+- **Spring MVC Components**
+  - Dispatcher Servlet for request routing
+  - View Resolvers for rendering views
+  - Model-View-Controller (MVC) pattern for application structure
+  - Validations for input data integrity
+
+- **Spring Boot Features**
+  - Starters for simplified dependency management
+  - Auto Configuration for reducing boilerplate configuration
+
+- **Supporting Frameworks/Tools**
+  - JSP and JSTL for view templates
+  - JPA for database interaction
+  - Bootstrap for frontend styling
+  - Spring Security for secure authentication
+  - Databases like MySQL and H2 for data persistence
+
+- **Goal**
+  - To create a Todo Management Web Application using Spring Boot
+  - Emphasize a modern approach with a hands-on experience
