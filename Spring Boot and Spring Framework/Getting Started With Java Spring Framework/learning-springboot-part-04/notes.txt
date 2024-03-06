@@ -1,0 +1,6 @@
+INSERT INTO course (id, name, author)
+VALUES (1, 'Learn Spring', 'Randy');
+
+SELECT * FROM course
+
+DELETE FROM course WHERE id=1
