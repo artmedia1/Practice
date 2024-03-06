@@ -27,16 +27,19 @@
   - [Spring Big Picture - Framework, Modules and Projects](#spring-big-picture---framework-modules-and-projects)
 - [Spring Boot](#spring-boot)
   - [Getting Started with Spring Boot - Approach](#getting-started-with-spring-boot---approach)
-
-
-
-
-
-
-
-  
-
-
+  - [Goal of Spring Boot](#goal-of-spring-boot)
+  - [Spring Boot Starter Projects](#exploring-spring-boot-starter-projects)
+  - [Spring Boot Auto Configuration](#exploring-spring-boot-auto-configuration)
+  - [Spring Boot Devtools](#build-faster-with-spring-boot-devtools)
+  - [Profiles in Spring Boot](#managing-app-configuration-using-profiles)
+  - [Spring Boot Actuator](#why-is-actuator-important)
+  - [Spring Ecosystem Review](#understanding-spring-boot-vs-spring-mvc-vs-spring-review)
+- [JPA and Hibernate](#jpa-and-hibernate)
+    - [Learning JPA and Hibernate with Spring Boot](#learning-jpa-and-hibernate---approach)
+    - [JDBC vs Spring JDBC vs JPA vs Spring Data JPA](#jdbc-to-spring-jdbc-to-jpa-to-spring-data-jpa)
+    - [Hardcoded Spring JDBC Insertion Example](#hardcoded-spring-jdbc-entry)
+    - [Dynamic JDBC Queries](#dynamic-jdbc-queries)
+    - [JPA Integration in Spring Boot](#jpa-integration-in-spring-boot)
 
 
 ## Terminology
@@ -1085,4 +1088,713 @@ The @PostConstruct annotation is useful for any logic that needs to run after th
   - Auto Configuration
   - Developer Tools
   - Actuator
-  - ...
+
+## Goal Of Spring Boot
+
+The primary goal of **Spring Boot** is to simplify the process of developing **production-ready** applications and services.
+
+### Key Features of Spring Boot
+
+- **Quick Development**:
+  1. Utilize [**Spring Initializr**](https://start.spring.io/) for project scaffolding.
+  2. Benefit from [**Spring Boot Starter Projects**](#exploring-spring-boot-starter-projects) to quickly set up common configurations.
+  3. Employ [**Spring Boot Auto Configuration**](#exploring-spring-boot-auto-configuration) to automatically configure your application based on the libraries on your classpath.
+  4. Take advantage of [**Spring Boot DevTools**](#build-faster-with-spring-boot-devtools) for automatic restarts, live reload, and enhanced development experience.
+
+- **Production-Ready Features**:
+  - Incorporate **Logging** for insightful information about the application behavior.
+  - Configure applications differently for different environments using **Profiles** and `ConfigurationProperties`.
+  - Implement **Monitoring** with tools like **Spring Boot Actuator** for application health and metrics.
+
+## Exploring Spring Boot Starter Projects
+
+Spring Boot aims to simplify the development of production-ready applications by providing a set of tools and frameworks. Starters are a set of convenient dependency descriptors that you can include in your application.
+
+### Why Use Starter Projects?
+
+- **Frameworks for Application Features**: To build application features such as REST APIs or to write unit tests, you would need to integrate various frameworks like Spring, Spring MVC, Tomcat for server support, JSON processing libraries, Spring Test, JUnit, Mockito, and more.
+
+- **Grouping Dependencies**: Starters allow you to group all these related dependencies together, simplifying the build configuration.
+
+### Advantages of Starter Projects
+
+- They reduce the risk of version conflicts by managing versions of dependencies for you.
+- Starters provide a quick way to get a new project or feature off the ground with minimum fuss.
+- They make it easier to follow best practices and use the right libraries to fulfill a given requirement.
+
+### Spring Boot's Variety of Starter Projects
+
+- **Web Application & REST API**: Utilize `Spring Boot Starter Web` which includes `spring-webmvc`, `spring-boot-starter-tomcat`, and `spring-boot-starter-json`.
+
+- **Unit Tests**: Easily write and run unit tests with `Spring Boot Starter Test`.
+
+- **JPA Database Access**: Integrate JPA to talk to databases with `Spring Boot Starter Data JPA`.
+
+- **JDBC Database Access**: Use JDBC with `Spring Boot Starter JDBC`.
+
+- **Security**: Secure your web application or REST API with `Spring Boot Starter Security`.
+
+For starting your project, you can use [Spring Initializr](https://start.spring.io/).
+
+## Exploring Spring Boot Auto Configuration
+
+Spring Boot facilitates application development by reducing the need for manual configuration.
+
+### Simplifying Configuration
+
+- **Complexity in Configuration**: Building a Spring application typically requires a lot of configuration, such as setting up a Component Scan, DispatcherServlet, Data Sources, JSON Conversion, etc.
+
+- **Auto Configuration**: Spring Boot simplifies this by providing automated configuration for your application.
+  - It decides the configuration based on:
+    - The frameworks available in the classpath.
+    - The existing configuration specified by annotations and other means.
+
+### Examples of Auto Configuration in Spring Boot
+
+- **Spring Boot Starter Web**: Simplifies the setup of web applications.
+  - **Dispatcher Servlet**: Automatically configured by `DispatcherServletAutoConfiguration`.
+  - **Embedded Servlet Container**: By default, Tomcat is configured using `EmbeddedWebServerFactoryCustomizerAutoConfiguration`.
+  - **Default Error Pages**: Provided by `ErrorMvcAutoConfiguration`.
+  - **Bean to JSON Conversion**: Handled by `JacksonHttpMessageConvertersConfiguration`, which sets up JSON conversion using Jackson libraries.
+
+Auto Configuration significantly streamlines the process of setting up a Spring application, enabling developers to focus more on the business logic rather than boilerplate configuration.
+
+## Build Faster with Spring Boot DevTools
+
+Spring Boot DevTools is a set of tools that can improve your development workflow.
+
+### Benefits of Using DevTools
+
+- **Increase in Productivity**: DevTools are designed to increase developer productivity by enabling features like automatic restart.
+  
+- **Efficient Development**: Avoid the hassle of manually restarting the server with every code change. DevTools automates this process, except when there are changes in `pom.xml`.
+
+### Important Note
+
+- **Dependency Changes**: Remember that for changes to dependencies in `pom.xml`, you will need to restart the server manually.
+
+### Adding DevTools to Your Project
+
+To include Spring Boot DevTools in your project, add the following dependency to your `pom.xml` file:
+
+```xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-devtools</artifactId>
+</dependency>
+```
+
+## Spring Boot Profiles
+
+
+![Alt text](image-3.png)
+
+## Managing App. Configuration using Profiles
+
+In the development lifecycle, applications are often deployed in multiple environments, such as:
+
+- **Development (Dev)**
+- **Quality Assurance (QA)**
+- **Staging (Stage)**
+- **Production (Prod)**
+
+Each of these environments can have distinct configurations:
+
+- **Databases**: Connections to different database instances or types.
+- **Web Services**: URLs and credentials for various internal or third-party services.
+
+### Providing Different Configurations
+
+To manage environment-specific configurations, Spring Boot uses the concept of **Profiles**. Profiles allow developers to define sets of configurations that are only activated in certain environments.
+
+### Why Use Profiles?
+
+- **Flexibility**: Profiles make it easy to switch between different configurations without changing the code.
+- **Convenience**: They help in maintaining a clean project structure by segregating configurations.
+- **Maintainability**: Reduces the chance of errors when moving from one environment to another by clearly defining what should be run where.
+
+### Example of Profile Configuration in Spring Boot
+
+Note: This example is found in App12
+
+In `application.properties`, you can specify the active profiles like this:
+
+```properties
+logging.level.org.springframework=debug
+spring.profiles.active=dev
+
+# Default currency service configuration
+currency-service.url=http://default.randy-huynh.com
+currency-service.username=defaultusername
+currency-service.key=defaultkey
+```
+
+In `application-dev.properties`, override the default configuration for the development environment:
+```properties
+logging.level.org.springframework=trace
+
+currency-service.url=http://dev.randy-huynh.com
+currency-service.username=devusername
+currency-service.key=devkey
+```
+
+In `application-prod.properties`, override the default configuration for the development environment:
+```properties
+logging.level.org.springframework=info
+
+currency-service.url=http://prod.randy-huynh.com
+currency-service.username=produsername
+currency-service.key=prodkey
+```
+
+### Spring Boot Configuration Class:
+
+Use @ConfigurationProperties to map these properties into a Spring bean:
+```java
+package com.randy.springboot.app12RestApiAndProfiles;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+@ConfigurationProperties(prefix = "currency-service")
+@Component
+public class CurrencyServiceConfiguration {
+    private String url;
+    private String username;
+    private String key;
+
+    // Standard getters and setters
+}
+```
+
+### Spring Boot Controller:
+
+Then, you can inject these properties into a REST controller to use them as needed:
+```java
+package com.randy.springboot.app12RestApiAndProfiles;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class CurrencyConfigurationController {
+    @Autowired
+    private CurrencyServiceConfiguration configuration;
+
+    @RequestMapping("/currency-configuration")
+    public CurrencyServiceConfiguration retrieveConfiguration() {
+        return configuration;
+    }
+}
+```
+
+### How It Works:
+
+- The spring.profiles.active property specifies the active profile.
+- When the application runs with the dev profile, it uses configurations from application-dev.properties.
+- The CurrencyServiceConfiguration class is annotated with @ConfigurationProperties to bind properties with the prefix currency-service.
+- The CurrencyConfigurationController serves the active configuration when the /currency-configuration endpoint is hit.
+
+Using profiles in this way ensures that your application uses the correct configurations for each environment, thus reducing the likelihood of configuration issues when deploying your application.
+
+## Monitor Applications using Spring Boot Actuator
+
+Spring Boot Actuator is a vital tool for monitoring and managing your application in production.
+
+### Key Features of Spring Boot Actuator
+
+- **Monitor and Manage**: Gain insights and control over your application in the production environment.
+
+- **Actuator Endpoints**: It provides several built-in endpoints for various monitoring needs:
+  - `beans`: Displays a complete list of all the Spring beans in your application.
+  - `health`: Shows application health information.
+  - `metrics`: Provides application metrics.
+  - `mappings`: Gives details about all the request mappings.
+
+### Why is Actuator Important?
+
+- **Real-Time Monitoring**: It allows you to access real-time information about the application's state and its components.
+  
+- **Ease of Use**: Actuator integrates with the application seamlessly and requires minimal configuration.
+
+- **Production-Ready Features**: It provides critical insights necessary for understanding and troubleshooting application behavior in production.
+
+### Configuring Actuator Endpoints
+
+To expose specific endpoints, such as `health` and `metrics`, add the following to your `application.properties` file:
+
+```properties
+management.endpoints.web.exposure.include=health,metrics
+```
+
+If you want to monitor all available endpoints, you can uncomment and use:
+
+```properties
+management.endpoints.web.exposure.include=*
+```
+
+# Understanding Spring Boot vs Spring MVC vs Spring Review
+
+Exploring the differences and components of Spring Boot, Spring MVC, and the Spring Framework can provide clarity on their respective roles in the development of Java applications.
+
+## Spring Boot vs Spring MVC vs Spring: What's in it?
+
+### Spring Framework
+- **Dependency Injection**: Core feature that manages components and dependencies.
+  - Uses annotations like `@Component`, `@Autowired`, and requires component scanning.
+  - However, dependency injection alone isn't enough for a full application. Integration with other frameworks (like Hibernate/JPA for persistence and Mockito for unit testing) is needed, which are facilitated by Spring Modules and Spring Projects.
+
+### Spring MVC (Spring Module)
+- **Web Application Development Simplified**: A module of Spring Framework to ease building web applications and REST APIs, better than older methods like Struts.
+  - Annotations such as `@Controller`, `@RestController`, and `@RequestMapping` help define web controllers and mappings.
+
+### Spring Boot (Spring Project)
+- **Rapid Production-Ready Applications**: Designed to accelerate development, making it easy to create stand-alone, production-grade applications.
+  - **Starter Projects**: Pre-configured templates to jump-start various types of applications.
+  - **Auto Configuration**: Reduces the need for manual configuration of Spring and other frameworks.
+  
+- **Non-Functional Requirements (NFRs)**:
+  - **Actuator**: Provides advanced monitoring capabilities for applications.
+  - **Embedded Server**: Eliminates the need for separate application server setups.
+  - **Logging and Error Handling**: Out-of-the-box support for application logging and error response handling.
+  - **Profiles and ConfigurationProperties**: Supports different configurations for different environments, improving manageability.
+
+By distinguishing these aspects, developers can better understand how to efficiently build and manage Spring-based applications.
+
+# JPA and Hibernate
+
+## Learning JPA and Hibernate - Approach
+
+Understanding Java Persistence API (JPA) and Hibernate can be facilitated by hands-on experience using a systematic approach with Spring Boot and an in-memory database like H2.
+
+### Steps for Learning JPA and Hibernate with Spring Boot
+
+1. **Create a Spring Boot Project with H2**
+   - Start by generating a new Spring Boot project and include H2, which is an in-memory database, perfect for development and testing due to its lightweight nature and ease of configuration.
+
+2. **Create COURSE Table**
+   - Define the schema for a `COURSE` table which will be used to interact with the database.
+
+3. **Use Spring JDBC to Interact with COURSE Table**
+   - Begin by using Spring JDBC to understand the basics of Spring database interactions.
+
+4. **Use JPA and Hibernate to Interact with COURSE Table**
+   - Move on to JPA and Hibernate to abstract and simplify the database interaction layer further.
+
+5. **Use Spring Data JPA to Interact with COURSE Table**
+   - Finally, use Spring Data JPA which provides a powerful repository and custom object-mapping abstraction, simplifying data access layers even more.
+
+### Understanding H2 Database
+
+- **H2 Database**: An open-source, lightweight in-memory database. It can be embedded in Java applications or run in client-server mode and is often used for development and testing purposes.
+
+### Configuring H2 and Spring Boot
+
+To enable and configure H2 database within your Spring Boot application, add the following properties to your `application.properties` file:
+
+```properties
+spring.h2.console.enabled=true
+spring.datasource.url=jdbc:h2:mem:testdb
+```
+
+### Creating a Database Schema
+
+1. Create a Schema File: In your Spring Boot project, create a file named `schema.sql` in the `src/main/resources` folder.
+
+2. Define Your Table: Add the SQL statements to define the schema of your COURSE table. For example:
+
+```sql
+create table course
+(
+    id bigint NOT NULL AUTO_INCREMENT,
+    name varchar(255) NOT NULL,
+    author varchar(255) NOT NULL,
+    PRIMARY KEY(id)
+);
+```
+
+`Spring Boot Schema Initialization`: Spring Boot will automatically pick up this schema.sql file on startup and initialize the H2 database with the defined schema.
+
+By following these steps, you will gain a comprehensive understanding of how to work with JPA and Hibernate within a Spring Boot application, using H2 as an in-memory database for simplicity and speed.
+
+## JDBC to Spring JDBC to JPA to Spring Data JPA
+
+The evolution from using JDBC to Spring Data JPA reflects a journey towards simplifying database interactions in Java applications.
+
+![Alt text](image-4.png)
+
+- **JDBC**
+  - Write a lot of SQL queries! (e.g., `delete from todo where id=?`)
+  - Write a lot of Java code to manage database operations.
+
+- **Spring JDBC**
+  - Still write SQL queries, but write less Java code thanks to `JdbcTemplate`.
+
+- **JPA**
+  - No need to write SQL queries for CRUD operations.
+  - Just map Java entities to database tables.
+
+- **Spring Data JPA**
+  - Makes JPA even simpler, abstracting boilerplate code.
+  - Manages repositories that take care of most common operations automatically.
+
+### JDBC
+- **Verbose**: Requires writing extensive SQL queries and Java code to manage the database interactions.
+  - SQL Example: `delete from todo where id=?`
+  - JDBC Java Code:
+    ```java
+    public void deleteTodo(int id) {
+        PreparedStatement st = null;
+        try {
+            st = db.conn.prepareStatement("delete from todo where id=?");
+            st.setInt(1, id);
+            st.execute();
+        } catch (SQLException e) {
+            logger.fatal("Query Failed : ", e);
+        } finally {
+            if (st != null) {
+                try { st.close(); }
+                catch (SQLException e) { }
+            }
+        }
+    }
+    ```
+
+### Spring JDBC
+- **Less Verbose**: Still requires SQL queries but simplifies the Java code with the `JdbcTemplate`.
+  - SQL remains the same.
+  - Spring JDBC Java Code:
+    ```java
+    public void deleteTodo(int id) {
+        jdbcTemplate.update("delete from todo where id=?", id);
+    }
+    ```
+
+Using Spring JDBC reduces boilerplate code, as it provides a template that takes care of common tasks like creating and closing connections, handling exceptions, and managing transactions.
+
+### Advantages of Using Spring JDBC Over Plain JDBC
+- Reduces the amount of boilerplate code required for database operations.
+- Improves readability and maintainability of the data access layer.
+- Provides a simpler API for database interactions, making error handling and resource management more efficient.
+
+As you progress to using JPA and Spring Data JPA, the amount of required SQL and Java code reduces further, making data access layers even more efficient and domain-focused.
+
+## Hardcoded Spring JDBC Entry
+
+```java
+package com.randy.springboot.learnjpaandhibernate.course.jdbc;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+@Component
+public class CourseJdbcCommandLineRunner implements CommandLineRunner {
+    @Autowired
+    private CourseJdbcRepository repository;
+
+    @Override
+    public void run(String... args) throws Exception {
+        repository.insert();
+    }
+}
+```
+
+```java
+package com.randy.springboot.learnjpaandhibernate.course.jdbc;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class CourseJdbcRepository {
+
+    @Autowired
+    private JdbcTemplate springJdbcTemplate;
+    private static String INSERT_QUERY =
+            """
+                    INSERT INTO course (id, name, author)
+                    VALUES (1, 'Learn Spring', 'Randy');
+                    """;
+
+    public void insert() {
+        springJdbcTemplate.update(INSERT_QUERY);
+    }
+}
+```
+
+### Component Definition:
+The CourseJdbcCommandLineRunner class is annotated with @Component, making it a bean managed by the Spring container. This class implements CommandLineRunner, which is an interface provided by Spring Boot that allows you to run code after the application context is loaded.
+
+### Dependency Injection:
+Within CourseJdbcCommandLineRunner, you inject CourseJdbcRepository using the @Autowired annotation. This is where the actual database operation is defined.
+
+### Execution Point:
+The run method of CourseJdbcCommandLineRunner will be executed automatically by Spring Boot at startup. Inside this method, you call repository.insert(), which triggers the insert operation.
+
+### Repository Definition:
+CourseJdbcRepository is annotated with @Repository, indicating that it's a data access object (DAO). Spring provides exception translation for classes annotated with @Repository, translating SQL exceptions into Spring's data access exceptions.
+
+### JdbcTemplate Injection:
+The JdbcTemplate is injected into CourseJdbcRepository with @Autowired. JdbcTemplate is a helper class that simplifies database interactions, eliminating the need for boilerplate code like opening connections, managing transactions, handling exceptions, and closing connections.
+
+### Insert Query:
+INSERT_QUERY is a static string that contains the SQL command to insert a new row into the course table with fixed values for the columns.
+
+### Executing the Insert:
+The insert method uses springJdbcTemplate to execute the INSERT_QUERY. The update method of JdbcTemplate is used here to execute the insert SQL statement. This method can be used for insert, update, and delete operations.
+
+### Hardcoded Data Insertion:
+When insert is called, it inserts a new course with an id of 1, a name of 'Learn Spring', and an author named 'Randy' into the course table. This is a hardcoded insertion because the values are fixed in the SQL statement.
+
+## Dynamic JDBC Queries
+
+- CourseJdbcRepository uses JdbcTemplate to handle JDBC operations in a Spring Boot application.
+- It provides methods to insert, delete, and find Course records in the database.
+- The insert and deleteById methods execute update operations with parameterized SQL queries.
+- The findById method retrieves a course using a SELECT query and maps the resulting row to a Course object with BeanPropertyRowMapper.
+- BeanPropertyRowMapper automatically maps a row's columns to bean properties by matching the column names to bean property names.
+- The Course class is a domain model with properties for id, name, and author, along with getters and setters.
+- CourseJdbcCommandLineRunner demonstrates the repository's functionality by inserting courses and outputting the result of a findById operation to the console.
+
+The following code snippets illustrate how to perform dynamic insert and delete operations using Spring JDBC in a Spring Boot application. Unlike hardcoded data, the CourseJdbcRepository allows for dynamic data manipulation by passing parameters to the SQL queries at runtime. The Course class is a simple Java domain object that represents the course data, and CourseJdbcCommandLineRunner uses the repository to insert dynamic course entries and delete one based on the provided ID upon application startup.
+
+### Repository Code
+
+```java
+package com.randy.springboot.learnjpaandhibernate.course.jdbc;
+
+import com.randy.springboot.learnjpaandhibernate.course.Course;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class CourseJdbcRepository {
+
+    @Autowired
+    private JdbcTemplate springJdbcTemplate;
+
+    // SQL queries using placeholders
+    private static final String INSERT_QUERY =
+            "INSERT INTO course (id, name, author) VALUES (?, ?, ?);";
+    private static final String DELETE_QUERY =
+            "DELETE FROM course WHERE id = ?;";
+    private static final String SELECT_QUERY =
+            "SELECT * FROM course WHERE id = ?;";
+
+    // Inserts a new course record into the database
+    public void insert(Course course) {
+        springJdbcTemplate.update(INSERT_QUERY, 
+                                  course.getId(), 
+                                  course.getName(), 
+                                  course.getAuthor());
+    }
+
+    // Deletes a course record by its id
+    public void deleteById(long id) {
+        springJdbcTemplate.update(DELETE_QUERY, id);
+    }
+
+    // Finds a course record by its id and maps it to a Course object
+    public Course findById(long id) {
+        return springJdbcTemplate.queryForObject(SELECT_QUERY, 
+                                                 new BeanPropertyRowMapper<>(Course.class), 
+                                                 id);
+    }
+}
+```
+
+### Command Line Runner Code
+
+```java
+package com.randy.springboot.learnjpaandhibernate.course.jdbc;
+
+import com.randy.springboot.learnjpaandhibernate.course.Course;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+@Component
+public class CourseJdbcCommandLineRunner implements CommandLineRunner {
+    @Autowired
+    private CourseJdbcRepository repository;
+
+    // Executes on application startup
+    @Override
+    public void run(String... args) throws Exception {
+        // Inserting course records
+        repository.insert(new Course(1, "Learn Spring Boot", "Randy Huynh"));
+        repository.insert(new Course(2, "Learn Spring Boot 2", "Randy Huynh"));
+        repository.insert(new Course(3, "Learn Spring Boot 3", "Randy Huynh"));
+        
+        // Deleting the course with id 1
+        repository.deleteById(1);
+        
+        // Retrieving and printing the course with id 3
+        System.out.println(repository.findById(3));
+    }
+}
+```
+
+
+### Domain Class Code
+
+
+```java
+package com.randy.springboot.learnjpaandhibernate.course;
+
+import org.springframework.stereotype.Component;
+
+public class Course {
+    private long id;
+    private String name;
+    private String author;
+
+    // Default and parameterized constructors
+    public Course() {}
+
+    public Course(long id, String name, String author) {
+        this.id = id;
+        this.name = name;
+        this.author = author;
+    }
+
+    // Getters and setters
+    // ...
+
+    // toString method for logging
+    @Override
+    public String toString() {
+        return "Course{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", author='" + author + '\'' +
+                '}';
+    }
+}
+```
+
+## JPA Integration in Spring Boot
+- Mapped Java objects (Course class) to SQL table using JPA annotations.
+- Utilized EntityManager to manage persistence contexts and CRUD operations.
+- Annotated CourseJpaRepository with @Transactional to handle transaction boundaries.
+- Used @PersistenceContext to inject the EntityManager instance.
+- Defined insert, findById, and deleteById methods in CourseJpaRepository to interact with the database.
+- CourseJpaRepository replaces CourseJdbcRepository for database operations with JPA.
+- In the Course entity, the @Id annotation marks the primary key.
+- Annotations like @Column are optional when the field name matches the column name in the database.
+- CourseJpaCommandLineRunner demonstrates repository operations at application startup.
+- JPA requires the repository code to be labelled with `@Transactional` as well
+
+### Repository Code
+
+```java
+package com.randy.springboot.learnjpaandhibernate.course.jpa;
+
+import com.randy.springboot.learnjpaandhibernate.course.Course;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Repository;
+
+@Repository
+@Transactional
+public class CourseJpaRepository {
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public void insert(Course course) {
+        entityManager.merge(course);
+    }
+
+    public Course findById(long id) {
+        return entityManager.find(Course.class, id);
+    }
+
+    public void deleteById(long id) {
+        Course course = findById(id);
+        entityManager.remove(course);
+    }
+}
+```
+
+
+### Command Line Runner Code
+
+```java
+package com.randy.springboot.learnjpaandhibernate.course.jpa;
+
+import com.randy.springboot.learnjpaandhibernate.course.Course;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+@Component
+public class CourseJpaCommandLineRunner implements CommandLineRunner {
+    @Autowired
+    private CourseJpaRepository repository;
+
+    @Override
+    public void run(String... args) throws Exception {
+        repository.insert(new Course(1, "Learn Spring Boot", "Randy Huynh"));
+        repository.insert(new Course(2, "Learn Spring Boot 2", "Randy Huynh"));
+        repository.insert(new Course(3, "Learn Spring Boot 3", "Randy Huynh"));
+        repository.deleteById(1);
+        System.out.println(repository.findById(3));
+    }
+}
+```
+
+
+### Entity Code
+
+
+```java
+package com.randy.springboot.learnjpaandhibernate.course;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
+public class Course {
+
+    @Id
+    private long id;
+    private String name;
+    private String author;
+
+    // Constructors, getters, setters, and toString method...
+}
+```
+
+
+### Entity Code
+
+```java
+package com.randy.springboot.learnjpaandhibernate.course;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
+public class Course {
+
+    @Id
+    private long id;
+    private String name;
+    private String author;
+
+    // Constructors, getters, setters, and toString method...
+}
+```
+
+If you wish to see what queries are being run by JPA and Hibernate, include this line of code into applications.properties:
+```properties
+spring.jpa.show-sql=true
+```
+
