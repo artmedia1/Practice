@@ -1,6 +1,6 @@
 # Spring Boot 3 and Spring Framework 6
 
-## Table of Context
+## Table of Contents
 - [Terminology](#terminology)
   - [Tightly Coupled Code](#tightly-coupled-code)
   - [Loosely Coupled Code](#loosely-coupled-code)
