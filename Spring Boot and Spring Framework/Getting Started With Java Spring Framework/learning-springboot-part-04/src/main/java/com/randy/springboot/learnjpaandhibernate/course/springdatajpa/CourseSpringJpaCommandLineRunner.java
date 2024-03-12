@@ -12,10 +12,14 @@ public class CourseSpringJpaCommandLineRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        repository.insert(new Course(1,"Learn JPA", "Randy Huynh"));
-        repository.insert(new Course(2,"Learn JPA 2", "Randy Huynh"));
-        repository.insert(new Course(3,"Learn JPA 3", "Randy Huynh"));
-        repository.deleteById(1);
-        System.out.println(repository.findById(3));
+        repository.save(new Course(1,"Learn JPA", "Randy Huynh"));
+        repository.save(new Course(2,"Learn JPA 2", "Randy Huynh"));
+        repository.save(new Course(3,"Learn JPA 3", "Randy Huynh"));
+        repository.save(new Course(3,"Hello!", "Test"));
+        repository.deleteById(1l);
+        System.out.println(repository.findById(3l));
+        System.out.println(repository.findAll());
+        System.out.println(repository.count());
+        System.out.println(repository.findByAuthor("Test"));
     }
 }

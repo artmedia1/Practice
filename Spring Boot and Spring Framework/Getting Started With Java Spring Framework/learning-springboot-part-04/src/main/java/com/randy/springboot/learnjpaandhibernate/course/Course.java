@@ -1,14 +1,14 @@
 package com.randy.springboot.learnjpaandhibernate.course;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import org.springframework.stereotype.Component;
 
 @Entity //(name="Course_Details") Note, this is not needed because database column name and variable name matches, if our table name is Course_Details instead we would.
+@Table(name="Users")
 public class Course {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
 //    @Column(name="name") Note, this is not needed because database column name and variable name matches
