@@ -1,14 +1,13 @@
-package com.randy.springboot.myfirstwebapp;
+package com.example.demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MyfirstwebappApplication {
+public class DemoApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MyfirstwebappApplication.class, args);
+		SpringApplication.run(DemoApplication.class, args);
 	}
 
 }
-

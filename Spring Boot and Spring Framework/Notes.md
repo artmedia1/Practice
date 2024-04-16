@@ -45,9 +45,33 @@
     - [Hibernate](#hibernate)
     - [More Hibernate Code Examples](#more-hibernate-code-examples)
 - [Building Your First Web Application Notes](#building-your-first-web-application)
-
-
-
+    - [Application Properties](#application-properties)
+        - [Server Configuration](#server-configuration)
+        - [View Resolver Configuration](#view-resolver-configuration)
+        - [Database Configuration](#database-configuration)
+        - [Logging Configuration](#logging-configuration)
+        - [Application Properties](#application-properties)
+        - [Spring Batch, Security, and more](#spring-batch-security-and-more)
+        - [Profiles](#profiles)
+        - [Spring Boot Specific Settings](#spring-boot-specific-settings)
+        - [Internationalization and Localization](#internationalization-and-localization)
+    - [First Spring MVC](#first-spring-mvc)
+        - [Controller](#controller)
+        - [Views](#views)
+            - [JSP (JavaServer Pages) Overview](#jsp-javaserver-pages-overview)
+        - [Iteration 1 Example](#iteration-1-example)
+        - [Iteration 2 (Login page without Spring Security)](#iteration-2-login-page-without-spring-security)
+        - [Iteration 3 (Todo List Feature and SessionAttributes)](#iteration-3-todo-list-feature-and-sessionattributes)
+        - [Iteration 4 (JSTL - JavaServer Pages Standard Tag Library)](#iteration-4-jstl---javaserver-pages-standard-tag-library)
+        - [Iteration 5 (Partials, @Valid, BindingResult)](#iteration-5-partials-valid-bindingresult)
+        - [Iteration 6 (Delete, Update Todos and Predicates)](#iteration-6-delete-update-todos-and-predicates)
+            - [Understanding `Predicate<? super Todo>` vs `Predicate<Todo>`](#understanding-predicate-super-todo-vs-predicatetodo)
+        - [Iteration 7 (Spring Security and Removing Hard Coded Users)](#iteration-7-spring-security-and-removing-hard-coded-users)
+        - [Iteration 8 (Adding New Users)](#iteration-8-adding-new-users)
+        - [Iteration 9 (Adding a Database)](#iteration-9-adding-a-database)
+            - [Setup](#setup)
+            - [Mapping `Bean` to Databases Tables](#mapping-bean-to-databases-tables)
+            - [Populating Databases](#populating-databases)
 ## Terminology
 
 ### Tightly Coupled Code
@@ -2229,7 +2253,7 @@ void save_my_first_object_to_the_db() {
     }
 ```
 
-### Building Your First Web Application
+# Building Your First Web Application
 
 Building a web application involves understanding and integrating a variety of concepts and tools:
 
@@ -2258,3 +2282,1277 @@ Building a web application involves understanding and integrating a variety of c
 - **Goal**
   - To create a Todo Management Web Application using Spring Boot
   - Emphasize a modern approach with a hands-on experience
+
+## Application Properties
+In Spring Boot, application.properties is a key file used to configure various aspects of a Spring Boot application. It affects the application in several ways:
+
+### Server Configuration
+You can specify the server port, context path, and other server-related settings.
+```properties
+server.port=8080
+server.servlet.context-path=/myapp
+```
+
+### View Resolver Configuration
+For our purposes, we will be creating a folder for our jsp in
+```
+/src/main/resources/META-INF/resources/WEB-INF/jsp/
+```
+**spring.mvc.view.prefix**: This property sets the prefix that the Spring view resolver will add to the view name (the string returned by the controller).
+**spring.mvc.view.suffix**: This property sets the suffix to append to the view name.
+```properties
+spring.mvc.view.prefix=/WEB-INF/jsp/
+spring.mvc.view.suffix=.jsp
+```
+
+With this setting, Spring will append `.jsp` to the view names. So, if a controller returns a view named `home`, Spring will resolve it to `/WEB-INF/jsp/home.jsp`.
+
+### Database Configuration
+Connection details for the database, such as URL, username, and password, can be set up here.
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/mydb
+spring.datasource.username=root
+spring.datasource.password=pass
+```
+
+### Logging Configuration
+Define the logging level of various components in the application.
+```properties
+logging.level.org.springframework.web=DEBUG
+logging.level.com.myapp=INFO
+```
+
+### Application Properties
+Custom properties specific to your application can be defined and later injected using @Value annotation or other configuration binding mechanisms in Spring.
+```properties
+myapp.feature.enabled=true
+```
+
+### Spring Batch, Security, and more
+Configure aspects of Spring Batch jobs, Spring Security settings, and any other Spring modules or custom configurations.
+```properties
+spring.batch.job.enabled=false
+spring.security.user.name=admin
+spring.security.user.password=secret
+```
+
+### Profiles
+Different configurations for various environments (like dev, test, prod) can be specified by naming the properties file accordingly, such as `application-dev.properties`, `application-test.properties`, etc.
+
+### Spring Boot Specific Settings
+Many Spring Boot-specific properties can be set, like auto-configuration settings, static resource locations, session timeouts, etc.
+
+### Internationalization and Localization 
+Define locale-specific messages and themes.
+
+## First Spring MVC
+### Controller
+```java
+@Controller
+public class SayHelloController {
+
+    @RequestMapping("say-hello-jsp")
+    public String sayHelloJsp() {
+        return "sayHello";
+    }
+}
+```
+The `SayHelloController` class demonstrates a simple usage of Spring MVC's `@Controller` and `@RequestMapping` annotations.
+
+
+### Controller Annotation
+`@Controller` marks this class as a Spring MVC controller, a component in the web layer.
+
+```java
+@Controller
+public class SayHelloController {
+    // ...
+}
+```
+
+### RequestMapping
+`@RequestMapping("say-hello-jsp")` associates the sayHello() method with the path /say-hello for HTTP requests.
+```java
+    @RequestMapping("say-hello-jsp")
+    public String sayHelloJsp() {
+        return "sayHello";
+    }
+```
+
+## Views
+
+### JSP (JavaServer Pages) Overview
+
+JSP files are text-based documents that describe how to create a web page with dynamic content. They are part of the Java EE technology suite and offer a server-side scripting feature.
+
+For our purposes, we will be creating a folder for our jsp in
+```
+/src/main/resources/META-INF/resources/WEB-INF/jsp/
+```
+
+You will need the following dependency
+```xml
+<dependency>
+    <groupId>org.apache.tomcat.embed</groupId>
+    <artifactId>tomcat-embed-jasper</artifactId>
+    <scope>provided</scope>
+</dependency>
+```
+and the following properties
+```properties
+spring.mvc.view.prefix=/WEB-INF/jsp/
+spring.mvc.view.suffix=.jsp
+```
+
+### Characteristics of JSP Files
+
+- **File Extension:** JSP files have a `.jsp` file extension.
+- **Combination of HTML/XML:** They typically contain standard HTML or XML markup.
+- **Java Code:** Alongside markup, JSP files embed Java code snippets that execute on the server to dynamically generate web content.
+- **Tag Libraries:** JSP supports custom tags, known as JSP tag libraries, which provide a way to abstract the Java code into more user-friendly HTML-like tags.
+
+### How JSP Works
+
+When a client requests a JSP page, the server:
+1. Compiles the JSP into a Java servlet (if not already compiled).
+2. Executes the servlet to generate HTML.
+3. Sends the generated HTML back to the client's browser.
+
+### Usage
+
+JSP is often used for:
+- Creating dynamically generated web pages based on user requests.
+- Managing user sessions in web applications.
+- Integrating Java-based backend logic into web pages.
+
+
+## Iteration 1 Example
+Access with
+```
+http://localhost:8080/login?name=JohnDoe
+```
+
+### applications.properties
+```properties
+spring.application.name=myfirstwebapp
+spring.mvc.view.prefix=/WEB-INF/jsp/
+spring.mvc.view.suffix=.jsp
+logging.level.org.springframework=debug
+logging.level.com.randy.springboot.myfirstwebapp=info
+spring.mvc.format.date=yyyy-MM-dd
+```
+
+### login.jsp
+```html
+<html>
+	<head>
+		<title>Login Page</title>
+	</head>
+	<body>
+
+		<div class="container">
+		Welcome to the login page ${name}!
+			<h1>Login</h1>
+		</div>
+
+	</body>
+</html>
+```
+### LoginController.java
+```java
+@Controller
+public class LoginController {
+    //Console logger
+    private Logger logger = LoggerFactory.getLogger(getClass());
+    @RequestMapping("login")
+    public String gotoLoginPage(@RequestParam String name, ModelMap model){
+        model.put("name",name);
+        //Only logs at info level
+        logger.info("Request param is {}", name);
+        return "login";
+    }
+}
+```
+
+## Iteration 2 (Login page without Spring Security)
+### login.jsp
+```html
+<html>
+	<head>
+		<title>Login Page</title>
+	</head>
+	<body>
+
+		<div class="container">
+		Welcome to the login page!
+			<h1>Login</h1>
+			<pre>${errorMessage}</pre>
+			<form method="post">
+				Name: <input type="text" name="name">
+				Password: <input type="password" name="password">
+				<input type="submit">
+			</form>
+		</div>
+
+	</body>
+</html>
+```
+### welcome.jsp
+```html
+<html>
+	<head>
+		<title>Manage Your Todos</title>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Welcome ${name}</h1>
+			<a href="list-todos">Manage</a> your todos
+		</div>
+	</body>
+</html>
+```
+### AutheticationService.java
+```java
+@Service
+public class AuthenticationService {
+	
+	public boolean authenticate(String username, String password) {
+		
+		boolean isValidUserName = username.equalsIgnoreCase("user1");
+		boolean isValidPassword = password.equalsIgnoreCase("pass1");
+		
+		return isValidUserName && isValidPassword;
+	}
+}
+```
+
+
+### LoginController.java
+```java
+public class LoginController {
+	
+	private AuthenticationService authenticationService;
+	
+	public LoginController(AuthenticationService authenticationService) {
+		super();
+		this.authenticationService = authenticationService;
+	}
+
+	@RequestMapping(value="login",method = RequestMethod.GET)
+	public String gotoLoginPage() {
+		return "login";
+	}
+
+	@RequestMapping(value="login",method = RequestMethod.POST)
+	public String gotoWelcomePage(@RequestParam String name, @RequestParam String password, ModelMap model) {
+		
+        if(authenticationService.authenticate(name, password)) {
+			model.put("name", name);		
+			return "welcome";
+		}
+
+        model.put("errorMessage", "Invalid Credentials. Please try again");
+		return "login";
+	}
+}
+```
+
+## Iteration 3 (Todo List Feature and SessionAttributes)
+The `@SessionAttributes` annotation in Spring MVC is used to store model attributes in the session. This is useful when you want certain attributes to be available across multiple requests in the same session. In the given example, the attribute "name" will be kept in the session, allowing it to be accessed across multiple requests to the LoginController.
+### list-todos.jsp
+```html
+<html>
+	<head>
+		<title>Manage Your Todos {$name}</title>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Your Todos</h1>
+			<div>${todos}</div>
+        </div>
+	</body>
+</html>
+```
+
+### Todo.java 
+This would usually be a database, but we're doing it this way for simplification for now
+```java
+public class Todo {
+    private int id;
+    private String username;
+    private String description;
+    private LocalDate targetDate;
+    private boolean done;
+
+    public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+        this.id = id;
+        this.username = username;
+        this.description = description;
+        this.targetDate = targetDate;
+        this.done = done;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDate getTargetDate() {
+        return targetDate;
+    }
+
+    public void setTargetDate(LocalDate targetDate) {
+        this.targetDate = targetDate;
+    }
+
+    public boolean isDone() {
+        return done;
+    }
+
+    public void setDone(boolean done) {
+        this.done = done;
+    }
+
+    @Override
+    public String toString() {
+        return "Todo{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", description='" + description + '\'' +
+                ", targetDate=" + targetDate +
+                ", done=" + done +
+                '}';
+    }
+}
+```
+
+### TodoService.java
+```java
+@Service
+public class TodoService {
+    private static List<Todo> todos = new ArrayList<>();;
+    static{
+        todos.add(new Todo(1, "user1", "descript1", LocalDate.now().plusYears(1),false));
+        todos.add(new Todo(2, "user1", "descript2", LocalDate.now().plusYears(1),false));
+    }
+
+    public List<Todo> findByUsername(String username){
+        return todos;
+    }
+}
+
+```
+
+### TodoController.java
+```java
+@Controller
+@SessionAttributes("name")
+public class TodoController {
+
+    private TodoService todoService;
+
+    public TodoController(TodoService todoService) {
+        this.todoService = todoService;
+    }
+
+    @RequestMapping("list-todos")
+    public String listAllTodos(ModelMap models){
+        List<Todo> todos = todoService.findByUsername("user1");
+        models.addAttribute("todos", todos);
+        return "listTodos";
+    }
+}
+```
+
+### LoginController.java
+```java
+@Controller
+@SessionAttributes("name")
+public class LoginController {
+// ...
+}
+```
+
+## Iteration 4 (JSTL - JavaServer Pages Standard Tag Library)
+JSTL (JavaServer Pages Standard Tag Library) enhances the capability of JSP by providing a rich set of tags that encapsulate core functionalities common to many web applications. Using JSTL, developers can achieve more functionality in JSP pages with less custom code, leading to more readable and maintainable codebases.
+First we need to add the following dependencies
+```xml
+<dependency>
+    <groupId>jakarta.servlet.jsp.jstl</groupId>
+    <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+</dependency>
+```
+```xml
+<dependency>
+    <groupId>org.glassfish.web</groupId>
+    <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+</dependency>
+```
+
+### listTodos.jsp
+```html
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+
+<html>
+	<head>
+		<title>Manage Your Todos</title>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Your Todos</h1>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Description</th>
+						<th>Target Date</th>
+						<th>Is Done?</th>
+					</tr>
+				</thead>
+				<tbody>
+					<c:forEach items="${todos}" var="todo">
+						<tr>
+							<td>${todo.description}</td>
+							<td>${todo.targetDate}</td>
+							<td>${todo.done}</td>
+
+						</tr>
+					</c:forEach>
+				</tbody>
+			</table>
+			<a href="add-todo" class="btn btn-success">Add Todo</a>
+		</div>
+	</body>
+</html>
+```
+
+## Iteration 5 (Partials, @Valid, BindingResult)
+
+### Validations in Spring
+Validations in Spring framework are used to ensure that the data received by an application meets certain criteria before processing it. The @Valid annotation is used to indicate that a parameter should be validated according to the constraints defined in its class. In your example, the Spring Boot Validation starter dependency is included to enable these validation capabilities:
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+```
+
+### Todos.java
+In the Todos.java class, the @Size annotation is used to validate that the description field should have at least 10 characters. If the description does not meet this requirement, a validation error is generated, and a specified message is shown:
+
+```java
+@Size(min=10, message="Enter at least 10 characters")
+private String description;
+```
+
+### TodosController.java
+In the TodoController.java, the `@Valid` annotation is used to trigger the validation of the Todo object passed to addNewTodo method. The `BindingResult` object holds the result of the validation and any error that might have occurred which will be displayed in the `todos.jsp` with `<form:errors path="description" cssClass="text-warning"/>`.
+```java
+@RequestMapping(value="add-todo", method = RequestMethod.POST)
+public String addNewTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+    if(result.hasErrors()) {
+        return "todo";
+    }
+
+    String username = (String)model.get("name");
+    todoService.addTodo(username, todo.getDescription(),
+            todo.getTargetDate(), false);
+    return "redirect:list-todos";
+}
+```
+
+### Spring Forms
+Spring Forms are a way to create and handle forms in Spring MVC applications. The Spring Form tag library (`<form:form>`) provides a set of tags that are used to create forms in JSP pages. These tags help in binding the form inputs to the model attributes, handling validation, and displaying errors.
+
+Here’s a breakdown of the example form:
+
+- `<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>`: This line declares the use of the Spring Form tag library.
+
+- `<form:form method="post" modelAttribute="todo">`: This starts the form. The modelAttribute specifies the model object that backs the form. In this case, it's todo.
+
+- Inside the form, `<form:label>` and `<form:input>` tags are used to create labels and input fields for form attributes. The path attribute of these tags corresponds to the properties of the model object (todo).
+
+- `<form:errors>` displays validation errors for the specific form field, styled with a given CSS class.
+
+Here's the structure:
+### Inside todo.jsp
+Take not that: 
+- `modelAttribute="todo"` in the form is mapped to the `@Valid Todo todo` from `TodosController.java`
+- `path="description"`, `path="targetDate"`, `path="id"` and `path="done"` are mapped to their respective properties in `Todo.java`
+
+```html
+<form:form method="post" modelAttribute="todo">
+    <fieldset class="mb-3">
+        <form:label path="description">Description</form:label>
+        <form:input type="text" path="description" required="required"/>
+        <form:errors path="description" cssClass="text-warning"/>
+    </fieldset>
+
+    <fieldset class="mb-3">
+        <form:label path="targetDate">Target Date</form:label>
+        <form:input type="text" path="targetDate" required="required"/>
+        <form:errors path="targetDate" cssClass="text-warning"/>
+    </fieldset>
+
+    <form:input type="hidden" path="id"/>
+    <form:input type="hidden" path="done"/>
+
+    <input type="submit" class="btn btn-success"/>
+</form:form>
+```
+
+In the folder of jsp views, we have another folder called common.
+
+### header.jspf
+```html
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+
+
+<html>
+	<head>
+		<link href="webjars/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet" >
+		<link href="webjars/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.standalone.min.css" rel="stylesheet" >
+
+		<title>Manage Your Todos</title>
+	</head>
+	<body>
+```
+
+### navigation.jspf
+```html
+<nav class="navbar navbar-expand-md navbar-light bg-light mb-3 p-1">
+	<a class="navbar-brand m-1" href="https://www.randy-huynh.com/">Randy Huynh</a>
+	<div class="collapse navbar-collapse">
+		<ul class="navbar-nav">
+			<li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+			<li class="nav-item"><a class="nav-link" href="/list-todos">Todos</a></li>
+		</ul>
+	</div>
+	<ul class="navbar-nav">
+		<li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+	</ul>
+</nav>
+```
+
+### footer.jspf
+```html
+<script src="webjars/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+		<script src="webjars/jquery/3.6.0/jquery.min.js"></script>
+		<script src="webjars/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+	</body>
+</html>
+```
+
+### listTodos.jsp
+```html
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ include file="common/header.jspf" %>
+<%@ include file="common/navigation.jspf" %>
+
+		<div class="container">
+		    <h1>Welcome ${name}</h1>
+			<h2>Your Todos</h2>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Description</th>
+						<th>Target Date</th>
+						<th>Is Done?</th>
+						<th></th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<c:forEach items="${todos}" var="todo">
+						<tr>
+							<td>${todo.description}</td>
+							<td>${todo.targetDate}</td>
+							<td>${todo.done}</td>
+							<td> <a href="delete-todo?id=${todo.id}" class="btn btn-warning">Delete</a>   </td>
+							<td> <a href="update-todo?id=${todo.id}" class="btn btn-success">Update</a>   </td>
+						</tr>
+					</c:forEach>
+				</tbody>
+			</table>
+			<a href="add-todo" class="btn btn-success">Add Todo</a>
+		</div>
+
+<%@ include file="common/footer.jspf" %>
+```
+
+### todo.jsp
+```html
+<%@ include file="common/header.jspf" %>
+<%@ include file="common/navigation.jspf" %>
+
+<div class="container">
+
+	<h1>Enter Todo Details</h1>
+
+	<form:form method="post" modelAttribute="todo">
+
+		<fieldset class="mb-3">
+			<form:label path="description">Description</form:label>
+			<form:input type="text" path="description" required="required"/>
+			<form:errors path="description" cssClass="text-warning"/>
+		</fieldset>
+
+		<fieldset class="mb-3">
+			<form:label path="targetDate">Target Date</form:label>
+			<form:input type="text" path="targetDate" required="required"/>
+			<form:errors path="targetDate" cssClass="text-warning"/>
+		</fieldset>
+
+
+		<form:input type="hidden" path="id"/>
+
+		<form:input type="hidden" path="done"/>
+
+		<input type="submit" class="btn btn-success"/>
+
+	</form:form>
+
+</div>
+
+<%@ include file="common/footer.jspf" %>
+
+<script type="text/javascript">
+	$('#targetDate').datepicker({
+	    format: 'yyyy-mm-dd'
+	});
+</script>
+```
+
+
+### TodoService.java
+```java
+package com.randy.springboot.myfirstwebapp.todo;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+
+import jakarta.validation.Valid;
+import org.springframework.stereotype.Service;
+
+@Service
+public class TodoService {
+
+    private static List<Todo> todos = new ArrayList<>();
+    private static int todosCount = 0;
+
+    static {
+        todos.add(new Todo(++todosCount, "Randy","Learn AWS",
+                LocalDate.now().plusYears(1), false ));
+        todos.add(new Todo(++todosCount, "Randy","Learn DevOps",
+                LocalDate.now().plusYears(2), false ));
+        todos.add(new Todo(++todosCount, "Randy","Learn Full Stack Development",
+                LocalDate.now().plusYears(3), false ));
+    }
+
+    public List<Todo> findByUsername(String username){
+        return todos;
+    }
+    public void addTodo(String username, String description, LocalDate targetDate, boolean done) {
+        Todo todo = new Todo(++todosCount,username,description,targetDate,done);
+        todos.add(todo);
+        System.out.println(todos);
+    }
+}
+```
+
+### TodoController.java
+```java
+package com.randy.springboot.myfirstwebapp.todo;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
+
+import jakarta.validation.Valid;
+
+@Controller
+@SessionAttributes("name")
+public class TodoController {
+    private TodoService todoService;
+
+    public TodoController(TodoService todoService) {
+        super();
+        this.todoService = todoService;
+    }
+
+    @RequestMapping("list-todos")
+    public String listAllTodos(ModelMap model) {
+        List<Todo> todos = todoService.findByUsername("in28minutes");
+        model.addAttribute("todos", todos);
+
+        return "listTodos";
+    }
+
+    //GET, POST
+    @RequestMapping(value="add-todo", method = RequestMethod.GET)
+    public String showNewTodoPage(ModelMap model) {
+        String username = (String)model.get("name");
+        Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+        model.put("todo", todo);
+        return "todo";
+    }
+
+    @RequestMapping(value="add-todo", method = RequestMethod.POST)
+    public String addNewTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+
+        if(result.hasErrors()) {
+            return "todo";
+        }
+
+        String username = (String)model.get("name");
+        todoService.addTodo(username, todo.getDescription(),
+                todo.getTargetDate(), false);
+        return "redirect:list-todos";
+    }
+
+}
+```
+
+## Iteration 6 (Delete, Update Todos and Predicates)
+Predicates in Java are a functional interface provided in the `java.util.function package`. A `Predicate<T>` is used to define a single method, `boolean test(T t)`, which returns `true` or `false` based on the criteria defined in its lambda expression or method reference. Predicates are often used for filtering or matching objects based on certain conditions.
+
+### Simple Example
+
+Let's consider a simple example where we use a predicate to filter a list of integers, removing any numbers less than 10:
+```java
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+
+public class Example {
+    public static void main(String[] args) {
+        List<Integer> numbers = new ArrayList<>();
+        numbers.add(5);
+        numbers.add(7);
+        numbers.add(10);
+        numbers.add(15);
+        numbers.add(20);
+
+        // Define a predicate that tests whether a number is less than 10
+        Predicate<Integer> lessThanTen = number -> number < 10;
+
+        // Remove numbers from the list that satisfy the predicate condition
+        numbers.removeIf(lessThanTen);
+
+        System.out.println(numbers); // Output will be [10, 15, 20]
+    }
+}
+```
+In this example, the predicate lessThanTen is used with the removeIf method to filter out numbers less than 10 from the list. After the removeIf operation, the list numbers will only contain elements that do not satisfy the predicate, meaning elements that are greater than or equal to 10.
+
+### TodoService.java
+```java
+@Service
+public class TodoService {
+
+    private static List<Todo> todos = new ArrayList<>();
+    private static int todosCount = 0;
+
+    static {
+        todos.add(new Todo(++todosCount, "Randy","Learn AWS",
+                LocalDate.now().plusYears(1), false ));
+        todos.add(new Todo(++todosCount, "Randy","Learn DevOps",
+                LocalDate.now().plusYears(2), false ));
+        todos.add(new Todo(++todosCount, "Randy","Learn Full Stack Development",
+                LocalDate.now().plusYears(3), false ));
+    }
+
+    public List<Todo> findByUsername(String username){
+        return todos;
+    }
+    public void addTodo(String username, String description, LocalDate targetDate, boolean done) {
+        Todo todo = new Todo(++todosCount,username,description,targetDate,done);
+        todos.add(todo);
+    }
+    public void deleteById(int id) {
+        Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+        todos.removeIf(predicate);
+    }
+
+    public Todo findById(int id) {
+        Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+        //Stream checks todos one by one
+        Todo todo = todos.stream().filter(predicate).findFirst().get();
+        return todo;
+    }
+
+    public void updateTodo(@Valid Todo todo) {
+        deleteById(todo.getId());
+        todos.add(todo);
+    }
+}
+```
+In the given code example, a `Predicate` is used to define a condition that tests whether a `Todo` object has a specific `id`. The `removeIf` method of the `Collection` interface then uses this predicate to remove elements that match the condition.
+- `Predicate<? super Todo> predicate = todo -> todo.getId() == id;` defines a predicate that checks if the `Todo` object's `id` matches the specified `id`.
+- `todos.removeIf(predicate);` uses the predicate to remove the `Todo` object from the `todos` list that matches the given condition.
+
+# Understanding `Predicate<? super Todo>` vs `Predicate<Todo>`
+
+The difference between `Predicate<? super Todo>` and `Predicate<Todo>` in Java involves the use of wildcards and type variance, specifically in how the `Predicate` interface accepts arguments:
+
+1. **`Predicate<? super Todo>`**:
+   - Utilizes a lower-bounded wildcard (`? super Todo`), allowing the predicate to work with `Todo` instances or any of its supertypes (e.g., a superclass of `Todo`).
+   - Offers more flexibility, permitting the predicate to operate on objects of a class that is a superclass of `Todo`.
+   - Useful in scenarios where functions need to accept generic types of a broader scope.
+   - Follows contravariance, accepting arguments of a broader type than specified.
+
+2. **`Predicate<Todo>`**:
+   - Specifies that the predicate works strictly with `Todo` instances.
+   - Less flexible compared to `Predicate<? super Todo>`, as it is limited to `Todo` objects and not its supertypes.
+   - Appropriate when there is certainty that the predicate will only need to operate on `Todo` instances.
+
+### Practical Implications
+
+- Use `Predicate<? super Todo>` for API or method designs that require high generality and flexibility, allowing predicates for `Todo` or its parent classes.
+- Use `Predicate<Todo>` when the method should strictly work with `Todo` instances, and there is no benefit in accepting predicates for superclass types.
+
+The choice between `Predicate<? super Todo>` and `Predicate<Todo>` should be based on the specific design requirements and the desired level of generality or specificity.
+
+
+
+### TodoController.java
+```java
+@RequestMapping("delete-todo")
+public String deleteTodo(@RequestParam int id) {
+    //Delete todo
+
+    todoService.deleteById(id);
+    return "redirect:list-todos";
+
+}
+
+@RequestMapping(value="update-todo", method = RequestMethod.GET)
+public String showUpdateTodoPage(@RequestParam int id, ModelMap model) {
+    Todo todo = todoService.findById(id);
+    model.addAttribute("todo", todo);
+    return "todo";
+}
+
+@RequestMapping(value="update-todo", method = RequestMethod.POST)
+public String updateTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+
+    if(result.hasErrors()) {
+        return "todo";
+    }
+
+    String username = (String)model.get("name");
+    todo.setUsername(username);
+    todoService.updateTodo(todo);
+    return "redirect:list-todos";
+}
+```
+
+
+## Iteration 7 (Spring Security and Removing Hard Coded Users)
+
+## Spring Security Overview
+
+Spring Security is a powerful and highly customizable authentication and access-control framework. It is the de-facto standard for securing Spring-based applications.
+
+## Default Behavior
+
+By default, when you include the Spring Boot Security starter dependency:
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+```
+
+## Spring Security will:
+
+- Apply default security configurations which secure all HTTP endpoints with "basic" authentication.
+- Create a default user with a username of "user" and a password that is generated at startup, logged at the INFO level.
+- Redirect any unauthenticated requests to `/login`. This is part of the default form-based login configuration.
+- Provides a logout request at `/logout`.
+
+## Customization
+```java
+@Configuration
+public class SpringSecurityConfiguration {
+    //LDAP or Database
+    //In Memory
+
+    //InMemoryUserDetailsManager
+    //InMemoryUserDetailsManager(UserDetails... users)
+
+    @Bean
+    public InMemoryUserDetailsManager createUserDetailsManager() {
+//        The first String inside the < > specifies the type of the argument that the function accepts. In this context, it means the Function takes a String as input.
+//        The second String inside the < > specifies the return type of the function. In this context, it means the Function returns a String as its result.
+        Function<String, String> passwordEncoder //
+                = input -> passwordEncoder().encode(input);
+
+        UserDetails userDetails = User.builder()
+                .passwordEncoder(passwordEncoder)
+                .username("test")
+                .password("test")
+                .roles("USER", "ADMIN")
+                .build();
+
+        return new InMemoryUserDetailsManager(userDetails);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+}
+```
+### WelcomeController.java
+We are refactoring `LoginController` to `WelcomeController` and removed hardcoded usernames.
+```java
+@Controller
+@SessionAttributes("name")
+public class WelcomeController {
+    @RequestMapping(value="/",method = RequestMethod.GET)
+    public String gotoWelcomePage(ModelMap model) {
+        model.put("name", getLoggedInUsername());
+        return "welcome";
+    }
+
+    private String getLoggedInUsername(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
+    }
+
+}
+```
+
+### TodoController.java
+We have removed hardcoded values
+```java
+@Controller
+@SessionAttributes("name")
+public class TodoController {
+    private TodoService todoService;
+
+    public TodoController(TodoService todoService) {
+        super();
+        this.todoService = todoService;
+    }
+
+    private static String getLoggedInUsername(ModelMap model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
+    }
+
+    @RequestMapping("list-todos")
+    public String listAllTodos(ModelMap model) {
+        String username = getLoggedInUsername(model);
+        List<Todo> todos = todoService.findByUsername(username);
+        model.addAttribute("todos", todos);
+
+        return "listTodos";
+    }
+
+    //GET, POST
+    @RequestMapping(value="add-todo", method = RequestMethod.GET)
+    public String showNewTodoPage(ModelMap model) {
+        String username = getLoggedInUsername(model);
+        Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+        model.put("todo", todo);
+        return "todo";
+    }
+
+    @RequestMapping(value="add-todo", method = RequestMethod.POST)
+    public String addNewTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+
+        if(result.hasErrors()) {
+            return "todo";
+        }
+
+        String username = getLoggedInUsername(model);
+        todoService.addTodo(username, todo.getDescription(),
+                todo.getTargetDate(), false);
+        return "redirect:list-todos";
+    }
+
+    @RequestMapping("delete-todo")
+    public String deleteTodo(@RequestParam int id) {
+        //Delete todo
+
+        todoService.deleteById(id);
+        return "redirect:list-todos";
+
+    }
+
+    @RequestMapping(value="update-todo", method = RequestMethod.GET)
+    public String showUpdateTodoPage(@RequestParam int id, ModelMap model) {
+        Todo todo = todoService.findById(id);
+        model.addAttribute("todo", todo);
+        return "todo";
+    }
+
+    @RequestMapping(value="update-todo", method = RequestMethod.POST)
+    public String updateTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+
+        if(result.hasErrors()) {
+            return "todo";
+        }
+
+        String username = getLoggedInUsername(model);
+        todo.setUsername(username);
+        todoService.updateTodo(todo);
+        return "redirect:list-todos";
+    }
+
+```
+
+### TodoService
+We have filtered the todo by username
+```java
+    public List<Todo> findByUsername(String username){
+        Predicate<? super Todo> predicate = todo -> todo.getUsername().equalsIgnoreCase(username);
+        return todos.stream().filter(predicate).toList();
+    }
+```
+
+## Iteration 8 (Adding New Users)
+### SpringSecurityConfiguration.java
+```java
+@Bean
+public InMemoryUserDetailsManager createUserDetailsManager() {
+// The first String inside the < > specifies the type of the argument that the function accepts. In this context, it means the Function takes a String as input.
+// The second String inside the < > specifies the return type of the function. In this context, it means the Function returns a String as its result.
+    Function<String, String> passwordEncoder //
+            = input -> passwordEncoder().encode(input);
+
+    UserDetails userDetails1 = createNewUser(passwordEncoder, "test1", "1");
+    UserDetails userDetails2 = createNewUser(passwordEncoder, "test2", "2");
+    return new InMemoryUserDetailsManager(userDetails1, userDetails2);
+}
+
+private static UserDetails createNewUser(Function<String, String> passwordEncoder, String username, String password) {
+    UserDetails userDetails = User.builder()
+            .passwordEncoder(passwordEncoder)
+            .username(username)
+            .password(password)
+            .roles("USER", "ADMIN")
+            .build();
+    return userDetails;
+}
+```
+
+## Iteration 9 (Adding a Database)
+## Setup
+### Dependencies
+You will need to add the following dependencies
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+```
+The h2 will not be a part of the jar, only the runtime
+```xml
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <scope>runtime</scope>
+</dependency>
+```
+
+### applications.properties
+```properties
+spring.mvc.view.prefix=/WEB-INF/jsp/
+spring.mvc.view.suffix=.jsp
+logging.level.org.springframework=info
+logging.level.com.randy.springboot.myfirstwebapp=info
+spring.mvc.format.date=yyyy-MM-dd
+spring.datasource.url=jdbc:h2:mem:testdb
+```
+
+### SpringSecurityConfiguration.java
+Previously, if left unconfigured, 2 specfic things are configured
+1. All URLS are protected by Spring Security
+2. A login form is shown for unauthorized requests
+
+To make use of the H2 console, we must disable `Cross-Site Request Forgery (CSRF)`. In addition, H2 makes use of `Frames`, and by default Spring Security does not allow for Frames, so we must configure that.
+
+### SecurityFilterChain
+The `SecurityFilterChain` in Spring Security is a core concept that represents a chain of filters, which are used to apply a series of security checks and mechanisms to HTTP requests in a Spring application. Here's how it functions and its role in Spring Security:
+
+### Functionality of SecurityFilterChain
+
+- `Filtering HTTP Requests`: The `SecurityFilterChain` is responsible for filtering HTTP requests coming to the application. It determines how security controls are applied to these requests.
+- `Series of Security Filters`: It consists of a sequence of filters, each performing different security tasks, such as authentication, authorization, session management, and more.
+- `Customizable Security Behavior`: Through the chain, you can customize the security behavior of your application by adding or removing filters and configuring their order.
+
+```java
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    // Configure authorization for HTTP requests
+    http.authorizeHttpRequests((auth) -> 
+        auth.anyRequest().authenticated()  // Require authentication for all requests
+    );
+
+    // Configure form-based authentication with default settings
+    http.formLogin(Customizer.withDefaults());
+
+    // Disable Cross-Site Request Forgery (CSRF) protection
+    // Typically done for services where clients do not need to hold a CSRF token (e.g., REST APIs)
+    http.csrf((csrf) -> csrf.disable());
+
+    // Disable the X-Frame-Options header to allow frames from any origin
+    // This can be necessary for allowing iframes to display content from this application
+    http.headers((headers) -> headers.frameOptions((frameOptions) -> frameOptions.disable()));
+
+    // Build and return the SecurityFilterChain instance with the above configurations
+    return http.build();
+}
+```
+
+# Mapping `Bean` to Databases Tables
+
+In Java Persistence API (JPA), certain annotations are used to define how a Java class is mapped to a database table. Below are the key annotations used in a JPA entity class:
+
+## `@Entity`
+- Spring will automatically create a table for each entity. In this case, we are using the h2 database, there will be a todo table generated.
+- This annotation marks a class as a JPA entity, meaning it represents a table stored in a database. Each instance of the class corresponds to a row in the table.
+
+  ```java
+  @Entity
+  public class Todo {
+      // class fields and methods
+  }
+  ```
+- The Todo class is recognized by JPA as an entity, and its persistence in the database is automatically managed.
+- Note: You can rename the tables to be found in the DB by: `@Entity(name = "Whatever")`, in this case the Todo Entity would be named `"Whatever"` in the database
+
+## `@Id` and `@GeneratedValue`
+- `@Id` designates a field as the primary key of the entity, a unique identifier for each entity instance.
+- `@GeneratedValue` specifies that the primary key value should be generated automatically, with an optional strategy for generating these values.
+    ```java
+    @Id
+    @GeneratedValue
+    private int id;
+    ```
+- The `@Id` field is used by JPA to uniquely identify each Todo entity, facilitating CRUD operations.
+- The `@GeneratedValues` field enables automatic generation of unique values for the id field when new Todo objects are persisted, ensuring each entity has a unique identifier.
+
+```java
+@Entity
+public class Todo {
+    @Id
+    @GeneratedValue
+    private int id;
+
+    @Column(name = "name")
+    private String Username
+}
+```
+- You can also rename columns in the database using `@Column(name = "whatever")`
+
+# Populating Databases
+- In the `src/main/resources` directory, create a `data.sql` file.
+- By default, data.sql will populate before the `@Entity` are processed. We must change this in the `application.properties`.
+```properties
+spring.jpa.defer-datasource-initialization=true
+```
+```sql
+-- data.sql
+insert into todo(ID, USERNAME, DESCRIPTION, TARGET_DATE, DONE)
+VALUES (10001, 'RANDY', 'Learn Spring Boot', CURRENT_DATE(), false);
+```
+
+# Creating a JpaRepository Interface
+In Spring Data JPA, the `JpaRepository` interface plays a crucial role in abstracting data access layers, providing essential CRUD (Create, Read, Update, Delete) operations and more, without the need for boilerplate code.
+
+## Understanding `JpaRepository`
+
+- **Generic Types:**
+  - `JpaRepository<T, ID>` where `T` is the entity type and `ID` is the type of the entity's identifier (primary key).
+  
+- **Usage:**
+  To define a repository for a specific entity, you extend `JpaRepository` with the entity type and its primary key type. For example, for a `Todo` entity with an integer ID:
+
+### TodoRepository.java
+  ```java
+  public interface TodoRepository extends JpaRepository<Todo, Integer> {
+      // Additional query methods can be defined here
+  }
+```
+## Features of JpaRepository
+
+1. `CRUD Operations`: Provides standard CRUD operations on the entity class it manages.
+2. `Pagination and Sorting`: Supports pagination and sorting, allowing efficient data access for large datasets.
+3. `Query Methods`: Enables the definition of query methods in the repository interface. Spring Data JPA automatically implements these methods.
+4. `Custom Queries`: Allows custom SQL or JPQL queries using the @Query annotation.
+
+## Benefits
+
+- `Simplicity`: Reduces boilerplate code significantly, as common data access patterns are provided out of the box.
+- `Abstraction`: Hides the complexities of direct database access and entity management.
+- `Integration`: Works seamlessly with other Spring functionalities, offering a consistent development experience.
+
+In summary, JpaRepository interfaces in Spring Data JPA facilitate easy and efficient interactions with the database, abstracting much of the complexity involved in data persistence operations.
+
+## TodoRepository
+Searching by `field`, in this case `Username` is not directly available with JpaRepository, we will have to define it in a method.
+
+```java
+public interface TodoRepository extends JpaRepository<Todo, Integer> {
+	public List<Todo> findByUsername(String username);
+}
+```
+Because username is an attribute in the `Todo` Bean, Spring will automatically provide a method to search by username.
+
+## Using TodoRepository
+We will comment out make a copy of `TodoController` and rename it `TodoControllerJpa`. We will also comment out `@Controller` in the `TodoController` file. We will also replace `todoService.findByUsername` with `todoRepository.findByUsername`
+
+```java
+public class TodoControllerJpa {
+    private TodoService todoService;
+    private TodoRepository todoRepository;
+
+    public TodoControllerJpa(TodoService todoService, TodoRepository todoRepository) {
+        super();
+        this.todoService = todoService;
+        this.todoRepository = todoRepository;
+    }
+
+    @RequestMapping("list-todos")
+    public String listAllTodos(ModelMap model) {
+        String username = getLoggedInUsername(model);
+        List<Todo> todos = todoRepository.findByUsername(username);
+        model.addAttribute("todos", todos);
+        return "listTodos";
+    }
+}
+```
